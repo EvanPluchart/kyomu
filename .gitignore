@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build
+.next/
+dist/
+out/
+
+# Env
+.env
+.env.local
+.env.production
+
+# Data (SQLite + cache)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/cache/
+
+# Coverage
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
