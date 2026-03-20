@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { PageViewer } from "@/components/reader/page-viewer";
 import { ReaderControls } from "@/components/reader/reader-controls";
 import { ProgressBar } from "@/components/reader/progress-bar";
+import { TouchHandler } from "@/components/reader/touch-handler";
 
 interface ComicReaderProps {
   comicId: number;
@@ -64,12 +65,6 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
 
-  function handleTap(zone: "left" | "center" | "right") {
-    if (zone === "left") goPrev();
-    else if (zone === "right") goNext();
-    else setShowControls((prev) => !prev);
-  }
-
   if (totalPages === 0) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -80,11 +75,13 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
 
   return (
     <div className="relative h-screen w-screen overflow-hidden select-none">
-      <PageViewer
-        comicId={comicId}
-        pageIndex={currentPage}
-        onTap={handleTap}
-      />
+      <TouchHandler
+        onNext={goNext}
+        onPrev={goPrev}
+        onToggleControls={() => setShowControls((prev) => !prev)}
+      >
+        <PageViewer comicId={comicId} pageIndex={currentPage} />
+      </TouchHandler>
 
       <ReaderControls
         visible={showControls}
