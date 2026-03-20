@@ -220,6 +220,17 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Mode kiosque</span>
+            <a
+              href="/kiosk"
+              className="inline-flex items-center gap-1 text-primary hover:underline"
+            >
+              Ouvrir
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Licence</span>
             <span>MIT</span>
           </div>
