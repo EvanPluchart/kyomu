@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getOfflineComics, removeOfflineComic, getStorageEstimate } from "@/lib/services/offline-storage";
+import { getOfflineComics, removeOfflineComic } from "@/lib/services/offline-storage";
 import { Button } from "@/components/ui/button";
 import { Trash2, Download } from "lucide-react";
 
@@ -15,24 +15,15 @@ interface OfflineComic {
 
 export default function DownloadsPage() {
   const [comics, setComics] = useState<OfflineComic[]>([]);
-  const [storage, setStorage] = useState({ used: 0, quota: 0 });
 
   useEffect(() => {
-    loadData();
+    getOfflineComics().then(setComics);
   }, []);
-
-  async function loadData() {
-    const [comicsList, estimate] = await Promise.all([
-      getOfflineComics(),
-      getStorageEstimate(),
-    ]);
-    setComics(comicsList);
-    setStorage(estimate);
-  }
 
   async function handleRemove(comicId: number) {
     await removeOfflineComic(comicId);
-    await loadData();
+    const updated = await getOfflineComics();
+    setComics(updated);
   }
 
   function formatSize(bytes: number): string {
@@ -41,10 +32,10 @@ export default function DownloadsPage() {
   }
 
   const totalSize = comics.reduce((sum, c) => sum + c.sizeBytes, 0);
-  const WARNING_THRESHOLD = 40 * 1024 * 1024; // 40 Mo
+  const WARNING_THRESHOLD = 40 * 1024 * 1024;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <h1 className="text-3xl font-bold">Mes téléchargements</h1>
 
       <div className="rounded-lg border border-border bg-card p-4 space-y-2">

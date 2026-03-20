@@ -32,7 +32,7 @@ export function Filters() {
           key={s.value}
           onClick={() => handleStatusChange(s.value)}
           className={cn(
-            "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+            "cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-all duration-200",
             currentStatus === s.value
               ? "bg-primary text-primary-foreground"
               : "bg-secondary text-secondary-foreground hover:bg-secondary/80",

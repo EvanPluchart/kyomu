@@ -9,7 +9,7 @@ export function SeriesCard({ series }: SeriesCardProps) {
   return (
     <Link
       href={`/series/${series.id}`}
-      className="group block space-y-2"
+      className="group block space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 rounded-lg"
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
         <img

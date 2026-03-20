@@ -38,7 +38,7 @@ export function SearchBar() {
         placeholder="Rechercher une série..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="h-10 w-full rounded-md border border-input bg-background px-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        className="h-10 w-full rounded-md border border-input bg-background px-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
       />
     </div>
   );
