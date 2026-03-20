@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Plus, Check, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { Search, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { HorizontalScroll } from "@/components/library/horizontal-scroll";
 
-interface ComicVineResult {
+interface Volume {
   id: number;
   name: string;
-  description: string | null;
   publisher: { name: string } | null;
   start_year: string | null;
   image: { medium_url: string } | null;
@@ -15,193 +15,171 @@ interface ComicVineResult {
   inLibrary: boolean;
 }
 
+interface BrowseData {
+  recent: Volume[];
+  popular: Volume[];
+  dc: Volume[];
+  marvel: Volume[];
+}
+
+function DiscoverCard({ volume }: { volume: Volume }) {
+  return (
+    <Link
+      href={`/discover/${volume.id}`}
+      className="group shrink-0 w-36 sm:w-40 space-y-2 snap-start cover-glow rounded-xl"
+    >
+      <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted">
+        {volume.image?.medium_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={volume.image.medium_url}
+            alt={volume.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
+          />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">
+            Pas d&apos;image
+          </div>
+        )}
+        <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/5" />
+        {volume.inLibrary && (
+          <div className="absolute top-2 left-2 rounded-full bg-green-500 px-2 py-0.5 text-[10px] font-medium text-white shadow">
+            En bibliothèque
+          </div>
+        )}
+      </div>
+      <div className="px-0.5">
+        <p
+          className="text-sm font-semibold leading-tight line-clamp-1"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {volume.name}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {volume.publisher?.name ?? ""}{" "}
+          {volume.start_year ? `· ${volume.start_year}` : ""}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function DiscoverSection({
+  title,
+  volumes,
+}: {
+  title: string;
+  volumes: Volume[];
+}) {
+  if (volumes.length === 0) return null;
+  return (
+    <section className="space-y-4">
+      <h2
+        className="text-lg font-semibold tracking-tight"
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        {title}
+      </h2>
+      <HorizontalScroll>
+        {volumes.map((v) => (
+          <DiscoverCard key={v.id} volume={v} />
+        ))}
+      </HorizontalScroll>
+    </section>
+  );
+}
+
 export default function DiscoverPage() {
+  const [browse, setBrowse] = useState<BrowseData | null>(null);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<ComicVineResult[]>([]);
+  const [searchResults, setSearchResults] = useState<Volume[]>([]);
   const [searching, setSearching] = useState(false);
-  const [requesting, setRequesting] = useState<number | null>(null);
-  const [requested, setRequested] = useState<Set<number>>(new Set());
-  const [error, setError] = useState<string | null>(null);
+  const [loadingBrowse, setLoadingBrowse] = useState(true);
+
+  // Load browse data on mount
+  useEffect(() => {
+    fetch("/api/discover/browse")
+      .then((r) => r.json())
+      .then(setBrowse)
+      .catch(() => {})
+      .finally(() => setLoadingBrowse(false));
+  }, []);
 
   async function handleSearch() {
-    if (!query.trim()) return;
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
     setSearching(true);
-    setError(null);
-    setResults([]);
-
     const res = await fetch(
       `/api/discover/search?q=${encodeURIComponent(query)}`,
     );
-
-    if (!res.ok) {
+    if (res.ok) {
       const data = await res.json();
-      setError(data.error ?? "Erreur de recherche");
-      setSearching(false);
-      return;
+      setSearchResults(data.results ?? []);
     }
-
-    const data = await res.json();
-    setResults(data.results ?? []);
     setSearching(false);
   }
 
-  async function handleRequest(comicVineId: number) {
-    setRequesting(comicVineId);
-
-    const res = await fetch("/api/discover/request", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ comicVineId }),
-    });
-
-    setRequesting(null);
-
-    if (res.ok) {
-      setRequested((prev) => new Set([...prev, comicVineId]));
-    }
-  }
-
-  function stripHtml(html: string | null): string {
-    if (!html) return "";
-    return html.replace(/<[^>]*>/g, "").trim();
-  }
+  const showSearchResults = searchResults.length > 0 || searching;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-      <div className="space-y-2">
+    <div className="space-y-10 animate-fade-in">
+      {/* Header + Search */}
+      <div className="space-y-6">
         <h1
           className="text-3xl font-bold tracking-tight"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Découvrir
         </h1>
-        <p className="text-muted-foreground">
-          Recherchez des comics sur ComicVine et ajoutez-les à votre
-          bibliothèque via Kapowarr.
-        </p>
-      </div>
 
-      {/* Barre de recherche */}
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Rechercher un comic, une série..."
+            placeholder="Rechercher un comic..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (!e.target.value.trim()) setSearchResults([]);
+            }}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            className="h-12 w-full rounded-xl border-0 bg-muted/50 pl-10 pr-4 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-muted transition-all duration-200"
+            className="h-14 w-full rounded-2xl border-0 bg-muted/50 pl-12 pr-4 text-base placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-muted transition-all duration-200"
           />
-        </div>
-        <Button
-          onClick={handleSearch}
-          disabled={searching || !query.trim()}
-          className="h-12 rounded-xl px-6"
-        >
-          {searching ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            "Rechercher"
+          {searching && (
+            <Loader2 className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 animate-spin text-muted-foreground" />
           )}
-        </Button>
+        </div>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
-      {/* Résultats */}
-      {results.length > 0 && (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            {results.length} résultats
-          </p>
-          {results.map((result) => {
-            const isInLibrary = result.inLibrary || requested.has(result.id);
-            const isRequesting = requesting === result.id;
-
-            return (
-              <div
-                key={result.id}
-                className="flex gap-4 rounded-xl bg-card p-4 transition-all hover:bg-muted/30"
-              >
-                {/* Couverture */}
-                {result.image?.medium_url && (
-                  <div className="shrink-0 w-20 aspect-[2/3] overflow-hidden rounded-lg bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={result.image.medium_url}
-                      alt={result.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* Informations */}
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3
-                        className="text-lg font-semibold"
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {result.name}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        {result.publisher && (
-                          <span>{result.publisher.name}</span>
-                        )}
-                        {result.start_year && (
-                          <>
-                            <span className="text-border">·</span>
-                            <span>{result.start_year}</span>
-                          </>
-                        )}
-                        <span className="text-border">·</span>
-                        <span>{result.count_of_issues} numéros</span>
-                      </div>
-                    </div>
-
-                    {/* Bouton d'action */}
-                    {isInLibrary ? (
-                      <div className="flex items-center gap-1.5 shrink-0 rounded-xl bg-green-500/10 px-3 py-2 text-sm text-green-500">
-                        <Check className="h-4 w-4" />
-                        {requested.has(result.id)
-                          ? "Ajouté"
-                          : "En bibliothèque"}
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={() => handleRequest(result.id)}
-                        disabled={isRequesting}
-                        className="shrink-0 gap-2 rounded-xl"
-                      >
-                        {isRequesting ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Plus className="h-4 w-4" />
-                        )}
-                        Ajouter
-                      </Button>
-                    )}
-                  </div>
-
-                  {result.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {stripHtml(result.description)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+      {/* Search results */}
+      {showSearchResults ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+          {searchResults.map((v) => (
+            <DiscoverCard key={v.id} volume={v} />
+          ))}
         </div>
-      )}
-
-      {!searching && results.length === 0 && query && !error && (
-        <div className="py-12 text-center text-muted-foreground">
-          Aucun résultat. Essayez un autre terme de recherche.
+      ) : loadingBrowse ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      )}
+      ) : browse ? (
+        /* Browse sections */
+        <>
+          <DiscoverSection
+            title="Récemment ajoutés sur ComicVine"
+            volumes={browse.recent}
+          />
+          <DiscoverSection
+            title="Les plus populaires"
+            volumes={browse.popular}
+          />
+          <DiscoverSection title="DC Comics" volumes={browse.dc} />
+          <DiscoverSection title="Marvel" volumes={browse.marvel} />
+        </>
+      ) : null}
     </div>
   );
 }

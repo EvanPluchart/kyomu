@@ -69,3 +69,67 @@ export async function getVolumeDetails(
     startYear: result.start_year ? parseInt(result.start_year, 10) : null,
   };
 }
+
+export async function getRecentVolumes(): Promise<ComicVineSearchResult[]> {
+  if (!isComicVineConfigured()) return [];
+  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&sort=date_added:desc&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
+  const response = await fetch(url, {
+    headers: { "User-Agent": "Kyomu Comic Reader" },
+    next: { revalidate: 3600 },
+  });
+  if (!response.ok) return [];
+  const data = await response.json();
+  return data.results ?? [];
+}
+
+export async function getPopularVolumes(): Promise<ComicVineSearchResult[]> {
+  if (!isComicVineConfigured()) return [];
+  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&sort=count_of_issues:desc&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
+  const response = await fetch(url, {
+    headers: { "User-Agent": "Kyomu Comic Reader" },
+    next: { revalidate: 3600 },
+  });
+  if (!response.ok) return [];
+  const data = await response.json();
+  return data.results ?? [];
+}
+
+export async function getVolumesByPublisher(
+  publisherId: number,
+): Promise<ComicVineSearchResult[]> {
+  if (!isComicVineConfigured()) return [];
+  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&filter=publisher:${publisherId}&sort=date_added:desc&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
+  const response = await fetch(url, {
+    headers: { "User-Agent": "Kyomu Comic Reader" },
+    next: { revalidate: 3600 },
+  });
+  if (!response.ok) return [];
+  const data = await response.json();
+  return data.results ?? [];
+}
+
+export async function getFullVolumeDetails(volumeId: number): Promise<{
+  id: number;
+  name: string;
+  description: string | null;
+  publisher: { name: string } | null;
+  start_year: string | null;
+  image: { medium_url: string; super_url: string } | null;
+  count_of_issues: number;
+  first_issue: {
+    id: number;
+    name: string;
+    issue_number: string;
+  } | null;
+  last_issue: { id: number; name: string; issue_number: string } | null;
+  characters: { id: number; name: string }[] | null;
+} | null> {
+  if (!isComicVineConfigured()) return null;
+  const url = `${BASE_URL}/volume/4050-${volumeId}/?api_key=${config.comicVineApiKey}&format=json`;
+  const response = await fetch(url, {
+    headers: { "User-Agent": "Kyomu Comic Reader" },
+  });
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data.results ?? null;
+}
