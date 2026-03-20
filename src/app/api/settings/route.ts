@@ -18,6 +18,7 @@ export async function GET(): Promise<NextResponse> {
     config: {
       comicsPath: config.comicsPath,
       scanIntervalMinutes: config.scanIntervalMinutes,
+      kapowarrUrl: config.kapowarrUrl,
     },
     stats: {
       series: seriesCount.total,

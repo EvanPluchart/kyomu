@@ -8,6 +8,7 @@ interface SettingsData {
   config: {
     comicsPath: string;
     scanIntervalMinutes: number;
+    kapowarrUrl: string;
   };
   stats: {
     series: number;
@@ -222,6 +223,21 @@ export default function SettingsPage() {
             <span className="text-muted-foreground">Licence</span>
             <span>MIT</span>
           </div>
+
+          {settings?.config.kapowarrUrl && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Kapowarr</span>
+              <a
+                href={settings.config.kapowarrUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:underline"
+              >
+                Ouvrir Kapowarr
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          )}
         </div>
       </section>
     </div>

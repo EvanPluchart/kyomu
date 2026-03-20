@@ -1,20 +1,32 @@
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { asc, like, or, sql } from "drizzle-orm";
+import { asc, desc, like, or, sql } from "drizzle-orm";
 import { SeriesGrid } from "@/components/library/series-grid";
 import { EmptyState } from "@/components/library/empty-state";
 import { SearchBar } from "@/components/library/search-bar";
 import { Filters } from "@/components/library/filters";
+import { SortSelect } from "@/components/library/sort-select";
 import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
 interface SeriesPageProps {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; sort?: string }>;
+}
+
+function getOrderBy(sort: string | undefined) {
+  switch (sort) {
+    case "volumes":
+      return desc(series.comicsCount);
+    case "added":
+      return desc(series.createdAt);
+    default:
+      return asc(series.title);
+  }
 }
 
 export default async function SeriesPage({ searchParams }: SeriesPageProps) {
-  const { q, status } = await searchParams;
+  const { q, status, sort } = await searchParams;
 
   // Build query with filters
   const conditions = [];
@@ -39,6 +51,8 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
     );
   }
 
+  const orderBy = getOrderBy(sort);
+
   // Apply conditions and order
   const allSeries =
     conditions.length > 0
@@ -46,8 +60,8 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
           .select()
           .from(series)
           .where(conditions.reduce((acc, c) => sql`${acc} AND ${c}`))
-          .orderBy(asc(series.title))
-      : await db.select().from(series).orderBy(asc(series.title));
+          .orderBy(orderBy)
+      : await db.select().from(series).orderBy(orderBy);
 
   // Check if library is completely empty (no filters applied)
   const isLibraryEmpty = !q && !status && allSeries.length === 0;
@@ -66,6 +80,9 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
                 <SearchBar />
               </Suspense>
             </div>
+            <Suspense>
+              <SortSelect />
+            </Suspense>
             <Suspense>
               <Filters />
             </Suspense>

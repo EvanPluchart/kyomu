@@ -5,6 +5,7 @@ export type Config = {
   comicsPath: string;
   scanIntervalMinutes: number;
   databasePath: string;
+  kapowarrUrl: string;
 };
 
 export const config: Config = {
@@ -13,6 +14,7 @@ export const config: Config = {
     ? parseInt(process.env.SCAN_INTERVAL_MINUTES, 10)
     : 60,
   databasePath: process.env.DATABASE_PATH ?? "./data/kyomu.db",
+  kapowarrUrl: process.env.KAPOWARR_URL ?? "",
 };
 
 export function validateConfig(): void {
