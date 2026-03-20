@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Series } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ChevronLeft } from "lucide-react";
+import { ComicVineEnricher } from "@/components/library/comicvine-enricher";
 
 interface SeriesHeaderProps {
   series: Series;
@@ -67,14 +68,17 @@ export function SeriesHeader({ series, comicsCount, continueComicId }: SeriesHea
             )}
           </div>
 
-          {continueComicId && (
-            <Link href={`/read/${continueComicId}`}>
-              <Button className="gap-2 rounded-xl">
-                <BookOpen className="h-4 w-4" />
-                Continuer la lecture
-              </Button>
-            </Link>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {continueComicId && (
+              <Link href={`/read/${continueComicId}`}>
+                <Button className="gap-2 rounded-xl">
+                  <BookOpen className="h-4 w-4" />
+                  Continuer la lecture
+                </Button>
+              </Link>
+            )}
+            <ComicVineEnricher seriesId={series.id} seriesTitle={series.title} />
+          </div>
         </div>
       </div>
     </div>

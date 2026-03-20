@@ -6,6 +6,7 @@ export type Config = {
   scanIntervalMinutes: number;
   databasePath: string;
   kapowarrUrl: string;
+  comicVineApiKey: string;
 };
 
 export const config: Config = {
@@ -15,6 +16,7 @@ export const config: Config = {
     : 60,
   databasePath: process.env.DATABASE_PATH ?? "./data/kyomu.db",
   kapowarrUrl: process.env.KAPOWARR_URL ?? "",
+  comicVineApiKey: process.env.COMICVINE_API_KEY ?? "",
 };
 
 export function validateConfig(): void {

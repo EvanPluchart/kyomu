@@ -19,6 +19,7 @@ export async function GET(): Promise<NextResponse> {
       comicsPath: config.comicsPath,
       scanIntervalMinutes: config.scanIntervalMinutes,
       kapowarrUrl: config.kapowarrUrl,
+      comicVineConfigured: config.comicVineApiKey.length > 0,
     },
     stats: {
       series: seriesCount.total,
