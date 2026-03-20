@@ -1,0 +1,352 @@
+feature: "kyomu-reader"
+plan_version: "v2"
+created_at: "2026-03-19"
+updated_at: "2026-03-20"
+
+summary:
+  total_stories: 30
+  completed: 30
+  in_progress: 0
+  todo: 0
+  blocked: 0
+
+epics:
+  - name: "Fondations"
+    slug: "epic-01-fondations"
+    stories:
+      - id: "1.1"
+        title: "Initialiser le projet Next.js avec Tailwind et shadcn/ui"
+        status: "done"
+        size: "M"
+        depends_on: []
+        started_at: "2026-03-20T10:00:00Z"
+        completed_at: "2026-03-20T10:15:00Z"
+        duration_minutes: 15
+        difficulty: "medium"
+        lessons_learned: "Next.js 16 a supprime la commande `next lint` — utiliser `eslint .` directement. ESLint 10 incompatible avec eslint-config-next, rester sur ESLint 9. Le flat config natif remplace FlatCompat."
+      - id: "1.2"
+        title: "Configurer Drizzle ORM avec SQLite"
+        status: "done"
+        size: "M"
+        depends_on: ["1.1"]
+        started_at: "2026-03-20T10:15:00Z"
+        completed_at: "2026-03-20T10:25:00Z"
+        duration_minutes: 10
+        difficulty: "easy"
+        lessons_learned: "better-sqlite3 necessite .npmrc avec build[]=better-sqlite3 pour pnpm. DB singleton doit utiliser config.databasePath plutot que path hardcode."
+      - id: "1.3"
+        title: "Configurer Docker multi-arch avec healthcheck"
+        status: "done"
+        size: "M"
+        depends_on: ["1.1"]
+        started_at: "2026-03-20T10:15:00Z"
+        completed_at: "2026-03-20T10:22:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "Node 20 inclut fetch() nativement — le healthcheck peut utiliser fetch() directement dans le CMD sans curl."
+      - id: "1.4"
+        title: "Implementer la configuration de l'application"
+        status: "done"
+        size: "S"
+        depends_on: ["1.1"]
+        started_at: "2026-03-20T10:15:00Z"
+        completed_at: "2026-03-20T10:20:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Config simple sans lib externe — process.env + valeurs par defaut suffit."
+
+  - name: "Scan de la bibliotheque"
+    slug: "epic-02-scan-bibliotheque"
+    stories:
+      - id: "2.1"
+        title: "Implementer le service de scan du systeme de fichiers"
+        status: "done"
+        size: "L"
+        depends_on: ["1.2", "1.4"]
+        started_at: "2026-03-20T10:30:00Z"
+        completed_at: "2026-03-20T10:45:00Z"
+        duration_minutes: 15
+        difficulty: "medium"
+        lessons_learned: "Le scan differentiel par mtime+size est simple et efficace. slugify necessite NFD normalization pour les accents."
+      - id: "2.2"
+        title: "Implementer l'extraction de metadonnees ComicInfo.xml"
+        status: "done"
+        size: "M"
+        depends_on: ["3.1", "3.2"]
+        started_at: "2026-03-20T11:00:00Z"
+        completed_at: "2026-03-20T11:08:00Z"
+        duration_minutes: 8
+        difficulty: "easy"
+        lessons_learned: "fast-xml-parser est simple et efficace pour le parsing ComicInfo.xml. La recherche case-insensitive de l'entree ZIP est necessaire."
+      - id: "2.3"
+        title: "Creer l'API Route de scan et le scan periodique"
+        status: "done"
+        size: "M"
+        depends_on: ["2.1", "2.2"]
+        started_at: "2026-03-20T11:25:00Z"
+        completed_at: "2026-03-20T11:32:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "instrumentation.ts de Next.js est le bon endroit pour le scheduler. Verifier NEXT_RUNTIME === nodejs pour ne pas executer pendant le build."
+
+  - name: "Extraction de comics"
+    slug: "epic-03-extraction-comics"
+    stories:
+      - id: "3.1"
+        title: "Implementer l'extraction des pages CBZ"
+        status: "done"
+        size: "M"
+        depends_on: ["1.1"]
+        started_at: "2026-03-20T10:30:00Z"
+        completed_at: "2026-03-20T10:42:00Z"
+        duration_minutes: 12
+        difficulty: "easy"
+        lessons_learned: "yauzl-promise simplifie beaucoup l'API yauzl. readEntries() charge la liste en memoire mais c'est acceptable (juste les metadonnees, pas les fichiers)."
+      - id: "3.2"
+        title: "Implementer l'extraction des pages CBR via binaire unrar"
+        status: "done"
+        size: "M"
+        depends_on: ["3.1"]
+        started_at: "2026-03-20T10:50:00Z"
+        completed_at: "2026-03-20T10:55:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "L'approche stdout (`unrar p -inul`) evite les fichiers temporaires. execFile avec encoding buffer et maxBuffer 50Mo est necessaire."
+      - id: "3.3"
+        title: "Implementer le support des dossiers d'images"
+        status: "done"
+        size: "S"
+        depends_on: ["3.1"]
+        started_at: "2026-03-20T10:50:00Z"
+        completed_at: "2026-03-20T10:55:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Le plus simple des extracteurs — readdir + filter + sort. Les tests avec dossier temp dans os.tmpdir() sont fiables."
+      - id: "3.4"
+        title: "Creer la factory d'extracteurs et les API Routes de pages"
+        status: "done"
+        size: "M"
+        depends_on: ["3.1", "3.2", "3.3", "1.2"]
+        started_at: "2026-03-20T11:00:00Z"
+        completed_at: "2026-03-20T11:10:00Z"
+        duration_minutes: 10
+        difficulty: "medium"
+        lessons_learned: "Turbopack ne supporte pas les modules natifs (yauzl/@node-rs/crc32). Utiliser serverExternalPackages dans next.config.ts. Buffer doit etre wrappe en Uint8Array pour NextResponse."
+
+  - name: "Thumbnails"
+    slug: "epic-04-thumbnails"
+    stories:
+      - id: "4.1"
+        title: "Implementer la generation et le cache de thumbnails"
+        status: "done"
+        size: "M"
+        depends_on: ["3.1", "3.2", "3.3"]
+        started_at: "2026-03-20T11:00:00Z"
+        completed_at: "2026-03-20T11:10:00Z"
+        duration_minutes: 10
+        difficulty: "easy"
+        lessons_learned: "sharp n'etait pas installe par defaut avec Next.js 16 — ajouter explicitement. Le pattern de concurrence limitee avec queue+workers est simple et efficace."
+      - id: "4.2"
+        title: "Creer l'API Route des thumbnails"
+        status: "done"
+        size: "S"
+        depends_on: ["4.1"]
+        started_at: "2026-03-20T11:15:00Z"
+        completed_at: "2026-03-20T11:20:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Le placeholder SVG inline evite une dependance a un fichier externe. Generation a la volee + cache disque = bonne UX sans pre-generation."
+
+  - name: "Interface bibliotheque"
+    slug: "epic-05-interface-bibliotheque"
+    stories:
+      - id: "5.1"
+        title: "Creer le layout principal et la navigation"
+        status: "done"
+        size: "M"
+        depends_on: ["1.1"]
+        started_at: "2026-03-20T11:25:00Z"
+        completed_at: "2026-03-20T11:30:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Bottom nav mobile est plus adapte que hamburger menu pour le tactile. Metadata viewport doit etre exportee separement de metadata dans Next.js 16."
+      - id: "5.2"
+        title: "Implementer la grille de series"
+        status: "done"
+        size: "M"
+        depends_on: ["5.1", "4.2", "2.3", "7.1"]
+        started_at: "2026-03-20T11:35:00Z"
+        completed_at: "2026-03-20T11:42:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "force-dynamic necessaire car SQLite n'existe pas pendant le build. img natif prefere a next/image pour nos API cachees."
+      - id: "5.3"
+        title: "Implementer la page de detail d'une serie"
+        status: "done"
+        size: "M"
+        depends_on: ["5.2", "7.1"]
+        started_at: "2026-03-20T11:45:00Z"
+        completed_at: "2026-03-20T11:52:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "Le bouton Continuer la lecture cherche le premier volume reading puis unread. Les badges de progression sur les cartes donnent un bon feedback visuel."
+      - id: "5.4"
+        title: "Implementer la recherche et les filtres"
+        status: "done"
+        size: "M"
+        depends_on: ["5.2", "7.1"]
+        started_at: "2026-03-20T11:45:00Z"
+        completed_at: "2026-03-20T11:50:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Suspense boundary obligatoire pour useSearchParams en Next.js 16. Les query params URL permettent le refresh et le partage de recherche."
+      - id: "5.5"
+        title: "Implementer la page d'accueil"
+        status: "done"
+        size: "M"
+        depends_on: ["5.1", "6.3", "7.1"]
+        started_at: "2026-03-20T12:50:00Z"
+        completed_at: "2026-03-20T12:57:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "Le carrousel CSS scroll-snap est simple et performant sans lib externe."
+
+  - name: "Lecteur de comics"
+    slug: "epic-06-lecteur-comics"
+    stories:
+      - id: "6.1"
+        title: "Implementer le lecteur de base (affichage page par page)"
+        status: "done"
+        size: "L"
+        depends_on: ["3.4"]
+        started_at: "2026-03-20T12:00:00Z"
+        completed_at: "2026-03-20T12:12:00Z"
+        duration_minutes: 12
+        difficulty: "medium"
+        lessons_learned: "Le groupe route (reader) permet un layout different sans nav. Les zones de tap en tiers fonctionnent bien pour la navigation tactile."
+      - id: "6.2"
+        title: "Implementer les gestes tactiles (swipe, pinch-to-zoom)"
+        status: "done"
+        size: "L"
+        depends_on: ["6.1"]
+        started_at: "2026-03-20T12:15:00Z"
+        completed_at: "2026-03-20T12:25:00Z"
+        duration_minutes: 10
+        difficulty: "medium"
+        lessons_learned: "@use-gesture/react simplifie enormement la gestion des gestes. Les CSS transforms via refs DOM evitent les re-renders React. Le conflit swipe/pan se gere par le scale."
+      - id: "6.3"
+        title: "Implementer le suivi de progression de lecture"
+        status: "done"
+        size: "M"
+        depends_on: ["1.2", "6.1"]
+        started_at: "2026-03-20T12:15:00Z"
+        completed_at: "2026-03-20T12:22:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "L'upsert Drizzle avec check d'existence puis insert/update est simple mais efficace. Le debounce 2s evite les ecritures excessives."
+      - id: "6.4"
+        title: "Implementer la navigation inter-volumes"
+        status: "done"
+        size: "S"
+        depends_on: ["6.1", "6.3", "7.1"]
+        started_at: "2026-03-20T12:30:00Z"
+        completed_at: "2026-03-20T12:37:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "L'overlay de fin reutilise l'API series existante pour trouver le volume suivant. L'integration de la sauvegarde de progression dans le reader est naturelle."
+      - id: "6.5"
+        title: "Implementer le mode de lecture vertical (webtoon)"
+        status: "done"
+        size: "M"
+        depends_on: ["6.1", "6.2"]
+        started_at: "2026-03-20T12:30:00Z"
+        completed_at: "2026-03-20T12:37:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "IntersectionObserver est parfait pour le lazy loading de pages. Le rootMargin de 200px precharge juste assez."
+      - id: "6.6"
+        title: "Implementer le mode double page et le sens de lecture"
+        status: "done"
+        size: "M"
+        depends_on: ["6.1", "6.2"]
+        started_at: "2026-03-20T12:30:00Z"
+        completed_at: "2026-03-20T12:35:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Le RTL se gere simplement en inversant l'ordre des pages affichees. localStorage par serie permet une persistance fine."
+
+  - name: "API bibliotheque"
+    slug: "epic-07-api-bibliotheque"
+    stories:
+      - id: "7.1"
+        title: "Implementer les API Routes de la bibliotheque"
+        status: "done"
+        size: "M"
+        depends_on: ["1.2"]
+        started_at: "2026-03-20T10:30:00Z"
+        completed_at: "2026-03-20T10:40:00Z"
+        duration_minutes: 10
+        difficulty: "easy"
+        lessons_learned: "Drizzle SELECT explicite avec champs nommes fonctionne bien pour les LEFT JOIN. Les sous-requetes SQL raw sont necessaires pour les filtres par statut."
+
+  - name: "OPDS"
+    slug: "epic-08-opds"
+    stories:
+      - id: "8.1"
+        title: "Implementer le service de generation OPDS"
+        status: "done"
+        size: "M"
+        depends_on: ["7.1"]
+        started_at: "2026-03-20T12:50:00Z"
+        completed_at: "2026-03-20T12:57:00Z"
+        duration_minutes: 7
+        difficulty: "easy"
+        lessons_learned: "Template literals suffisent pour generer du XML OPDS. Pas besoin de lib XML pour si peu de structure."
+      - id: "8.2"
+        title: "Creer les API Routes OPDS"
+        status: "done"
+        size: "S"
+        depends_on: ["8.1", "4.2"]
+        started_at: "2026-03-20T13:00:00Z"
+        completed_at: "2026-03-20T13:05:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Le telechargement via readFileSync est acceptable pour des fichiers individuels. Streamer serait mieux pour les tres gros fichiers."
+
+  - name: "PWA et mode offline"
+    slug: "epic-09-pwa-offline"
+    stories:
+      - id: "9.1"
+        title: "Configurer le manifest PWA et le service worker"
+        status: "done"
+        size: "M"
+        depends_on: ["5.1"]
+        started_at: "2026-03-20T12:50:00Z"
+        completed_at: "2026-03-20T12:58:00Z"
+        duration_minutes: 8
+        difficulty: "easy"
+        lessons_learned: "Un SW minimal ecrit a la main est plus fiable que serwist/next-pwa avec Next.js 16. Sharp genere les icones PNG depuis un SVG inline."
+      - id: "9.2"
+        title: "Implementer le telechargement offline de comics"
+        status: "done"
+        size: "L"
+        depends_on: ["9.1", "6.1"]
+        started_at: "2026-03-20T13:00:00Z"
+        completed_at: "2026-03-20T13:08:00Z"
+        duration_minutes: 8
+        difficulty: "medium"
+        lessons_learned: "IndexedDB avec composite key [comicId, pageIndex] fonctionne bien. Le cursor pour la suppression est verbeux mais necessaire sans index secondaire."
+
+  - name: "Vitest setup"
+    slug: "epic-10-vitest-setup"
+    stories:
+      - id: "10.1"
+        title: "Configurer Vitest avec le projet"
+        status: "done"
+        size: "S"
+        depends_on: ["1.1"]
+        started_at: "2026-03-20T10:30:00Z"
+        completed_at: "2026-03-20T10:35:00Z"
+        duration_minutes: 5
+        difficulty: "easy"
+        lessons_learned: "Vitest 4 detecte automatiquement les fichiers de test. La fixture test.cbz peut etre creee via Python quand zip n'est pas installe."
