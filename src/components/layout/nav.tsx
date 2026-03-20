@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Library } from "lucide-react";
+import { Home, Library, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavProps {
@@ -12,6 +12,7 @@ interface NavProps {
 const links = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/series", label: "Séries", icon: Library },
+  { href: "/settings", label: "Paramètres", icon: Settings },
 ];
 
 export function Nav({ className }: NavProps) {
