@@ -6,6 +6,35 @@ import { eq, notInArray, sql } from "drizzle-orm";
 import { config } from "@/lib/config";
 import { getComicFormat, slugify, extractNumberFromFilename } from "./file-utils";
 
+/** Parcourt récursivement un dossier et retourne tous les fichiers comic trouvés */
+function findComicFilesRecursive(dirPath: string): string[] {
+  const results: string[] = [];
+
+  let entries: fs.Dirent[];
+  try {
+    entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  } catch (err) {
+    console.warn(`[scanner] Impossible de lire le dossier "${dirPath}" : ${err}`);
+    return results;
+  }
+
+  for (const entry of entries) {
+    const entryPath = path.join(dirPath, entry.name);
+
+    if (entry.isDirectory()) {
+      // Descendre récursivement dans les sous-dossiers (ex: Volume XX)
+      results.push(...findComicFilesRecursive(entryPath));
+    } else {
+      const format = getComicFormat(entryPath);
+      if (format) {
+        results.push(entryPath);
+      }
+    }
+  }
+
+  return results;
+}
+
 export interface ScanResult {
   seriesAdded: number;
   seriesRemoved: number;
@@ -85,17 +114,10 @@ export async function scanLibrary(): Promise<ScanResult> {
         continue;
       }
 
-      // Lister les fichiers du dossier série
-      let seriesEntries: fs.Dirent[];
-      try {
-        seriesEntries = fs.readdirSync(seriesDirPath, { withFileTypes: true });
-      } catch (err) {
-        console.warn(`[scanner] Impossible de lire le dossier série "${seriesDirPath}" : ${err}`);
-        continue;
-      }
+      // Lister récursivement les fichiers comic du dossier série (supporte les sous-dossiers type Kapowarr)
+      const comicFiles = findComicFilesRecursive(seriesDirPath);
 
-      for (const entry of seriesEntries) {
-        const entryPath = path.join(seriesDirPath, entry.name);
+      for (const entryPath of comicFiles) {
         const format = getComicFormat(entryPath);
         if (!format) continue;
 
@@ -111,8 +133,9 @@ export async function scanLibrary(): Promise<ScanResult> {
 
         const fileSize = stat.size;
         const fileMtime = Math.floor(stat.mtimeMs);
-        const comicTitle = path.basename(entry.name, path.extname(entry.name));
-        const number = extractNumberFromFilename(entry.name);
+        const fileName = path.basename(entryPath);
+        const comicTitle = path.basename(fileName, path.extname(fileName));
+        const number = extractNumberFromFilename(fileName);
 
         try {
           const existing = await db
