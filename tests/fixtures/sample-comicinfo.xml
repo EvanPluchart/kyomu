@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ComicInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Title>Batman: The Court of Owls</Title>
+  <Series>Batman</Series>
+  <Number>1</Number>
+  <Writer>Scott Snyder</Writer>
+  <Penciller>Greg Capullo</Penciller>
+  <Summary>Batman discovers a secret society that has controlled Gotham for centuries.</Summary>
+  <Year>2011</Year>
+  <Publisher>DC Comics</Publisher>
+  <PageCount>24</PageCount>
+</ComicInfo>
