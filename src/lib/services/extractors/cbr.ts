@@ -1,5 +1,8 @@
 import { execFile as execFileCb } from "child_process";
 import { promisify } from "util";
+import fs from "fs/promises";
+import os from "os";
+import path from "path";
 import type { ComicExtractor, PageInfo } from "./types";
 import { naturalSort, isImageFile } from "./utils";
 
@@ -9,6 +12,7 @@ export class CbrExtractor implements ComicExtractor {
   private filePath: string;
   private cachedFiles: string[] | null = null;
   private unrarChecked = false;
+  private tempDir: string | null = null;
 
   constructor(filePath: string) {
     this.filePath = filePath;
@@ -31,16 +35,41 @@ export class CbrExtractor implements ComicExtractor {
 
     await this.checkUnrar();
 
-    const { stdout } = await execFile("unrar", ["lb", this.filePath]);
-    const files = stdout
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0)
-      .filter((line) => isImageFile(line))
-      .sort(naturalSort);
+    // unrar-free utilise --list au lieu de lb
+    const { stdout } = await execFile("unrar", ["--list", this.filePath]);
 
-    this.cachedFiles = files;
-    return files;
+    // Parser la sortie de unrar-free --list
+    // Format : lignes avec le nom de fichier, suivies d'une ligne avec taille/date
+    const files: string[] = [];
+    const lines = stdout.split("\n");
+    let pastHeader = false;
+
+    for (const line of lines) {
+      if (line.includes("------")) {
+        pastHeader = true;
+        continue;
+      }
+      if (!pastHeader) continue;
+      if (line.trim() === "" || line.trim() === "All OK") continue;
+
+      // Les lignes de nom de fichier commencent par un espace et ne contiennent pas de date
+      const trimmed = line.trimStart();
+      if (trimmed.length > 0 && !(/^\d+\s+\d{2}-\d{2}-\d{2}/.test(trimmed))) {
+        if (isImageFile(trimmed)) {
+          files.push(trimmed);
+        }
+      }
+    }
+
+    this.cachedFiles = files.sort(naturalSort);
+    return this.cachedFiles;
+  }
+
+  private async ensureTempDir(): Promise<string> {
+    if (!this.tempDir) {
+      this.tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "kyomu-cbr-"));
+    }
+    return this.tempDir;
   }
 
   async getPageCount(): Promise<number> {
@@ -64,16 +93,26 @@ export class CbrExtractor implements ComicExtractor {
       throw new Error(`Page ${index} introuvable dans l'archive`);
     }
 
-    const { stdout } = await execFile(
+    // unrar-free ne supporte pas p -inul, on extrait dans un dossier temp
+    const tempDir = await this.ensureTempDir();
+
+    await execFile(
       "unrar",
-      ["p", "-inul", this.filePath, entryName],
-      { encoding: "buffer", maxBuffer: 50 * 1024 * 1024 }
+      ["--extract", "--extract-no-paths", "--force", this.filePath, entryName, tempDir + "/"],
+      { maxBuffer: 50 * 1024 * 1024 }
     );
 
-    return stdout as unknown as Buffer;
+    const extractedPath = path.join(tempDir, path.basename(entryName));
+    const buffer = await fs.readFile(extractedPath);
+    await fs.unlink(extractedPath).catch(() => {});
+
+    return buffer;
   }
 
   async close(): Promise<void> {
-    // Rien à nettoyer : pas de dossier temporaire avec l'approche stdout
+    if (this.tempDir) {
+      await fs.rm(this.tempDir, { recursive: true, force: true }).catch(() => {});
+      this.tempDir = null;
+    }
   }
 }
