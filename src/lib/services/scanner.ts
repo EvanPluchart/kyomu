@@ -157,7 +157,13 @@ export async function scanLibrary(): Promise<ScanResult> {
             result.comicsAdded++;
           } else {
             const existingComic = existing[0];
-            if (existingComic.fileMtime !== fileMtime || existingComic.fileSize !== fileSize) {
+            const needsUpdate =
+              existingComic.fileMtime !== fileMtime ||
+              existingComic.fileSize !== fileSize ||
+              existingComic.title !== comicTitle ||
+              existingComic.number !== number;
+
+            if (needsUpdate) {
               await db
                 .update(comics)
                 .set({ fileSize, fileMtime, title: comicTitle, number, format })
