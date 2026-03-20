@@ -1,13 +1,35 @@
-import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { config } from "@/lib/config";
 import * as schema from "./schema";
 
-const sqlite = new Database(config.databasePath);
+function createDb() {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Database = require("better-sqlite3");
+  const sqlite = new Database(config.databasePath);
+  sqlite.pragma("journal_mode = WAL");
+  sqlite.pragma("foreign_keys = ON");
+  return drizzle(sqlite, { schema });
+}
 
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("foreign_keys = ON");
+let _db: ReturnType<typeof createDb> | null = null;
 
-export const db = drizzle(sqlite, { schema });
+export function getDatabase() {
+  if (!_db) {
+    _db = createDb();
+  }
+  return _db;
+}
 
-export type Db = typeof db;
+// For backwards compatibility - lazily create DB
+export const db = new Proxy({} as ReturnType<typeof createDb>, {
+  get(_target, prop: string | symbol) {
+    const instance = getDatabase();
+    const value = (instance as unknown as Record<string | symbol, unknown>)[prop];
+    if (typeof value === "function") {
+      return value.bind(instance);
+    }
+    return value;
+  },
+});
+
+export type Db = ReturnType<typeof createDb>;

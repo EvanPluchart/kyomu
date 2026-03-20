@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProgress, saveProgress } from "@/lib/services/progress";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -15,6 +17,7 @@ export async function GET(
   const progress = await getProgress(comicId);
   return NextResponse.json({ progress });
 }
+
 
 export async function PUT(
   request: NextRequest,

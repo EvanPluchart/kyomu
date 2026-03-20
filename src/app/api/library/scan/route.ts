@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { scanLibrary, getScanStatus } from "@/lib/services/scanner";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(): Promise<NextResponse> {
   const status = getScanStatus();
 

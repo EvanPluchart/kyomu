@@ -4,6 +4,8 @@ import { series } from "@/lib/db/schema";
 import { asc } from "drizzle-orm";
 import { generateSeriesFeed } from "@/lib/services/opds";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const baseUrl = new URL(request.url).origin;
 

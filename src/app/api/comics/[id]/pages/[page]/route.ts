@@ -4,6 +4,8 @@ import { comics } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getExtractor } from "@/lib/services/extractors/factory";
 
+export const dynamic = "force-dynamic";
+
 function getContentType(filename: string): string {
   const ext = filename.toLowerCase().split(".").pop();
   switch (ext) {

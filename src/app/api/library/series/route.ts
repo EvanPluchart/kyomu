@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
 import { like, or, asc, desc, count, sql } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 const SORT_COLUMNS = {
   title: series.title,
   added_at: series.createdAt,

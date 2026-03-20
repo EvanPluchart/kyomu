@@ -2,11 +2,15 @@ services:
   kyomu:
     build: .
     ports:
-      - "3000:3000"
+      - "3333:3000"
     volumes:
-      - ./data:/app/data
-      - ${COMICS_PATH:-/mnt/media/comics}:/comics:ro
+      - kyomu-data:/app/data
+      - /mnt/media/comics:/comics:ro
     environment:
       - COMICS_PATH=/comics
       - DATABASE_PATH=/app/data/kyomu.db
+      - SCAN_INTERVAL_MINUTES=60
     restart: unless-stopped
+
+volumes:
+  kyomu-data:

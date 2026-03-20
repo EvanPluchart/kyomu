@@ -5,6 +5,8 @@ import { eq } from "drizzle-orm";
 import fs from "fs/promises";
 import { getThumbnailPath, thumbnailExists, generateThumbnail } from "@/lib/services/thumbnails";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
