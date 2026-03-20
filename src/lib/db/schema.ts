@@ -30,7 +30,7 @@ export const comics = sqliteTable(
     filePath: text("file_path").notNull().unique(),
     fileSize: integer("file_size").notNull(),
     fileMtime: integer("file_mtime").notNull(),
-    format: text("format", { enum: ["cbz", "cbr", "folder"] }).notNull(),
+    format: text("format", { enum: ["cbz", "cbr", "pdf", "folder"] }).notNull(),
     pageCount: integer("page_count"),
     metadataJson: text("metadata_json"),
     createdAt: text("created_at")
@@ -85,5 +85,33 @@ export type NewComic = typeof comics.$inferInsert;
 export type ReadingProgress = typeof readingProgress.$inferSelect;
 export type NewReadingProgress = typeof readingProgress.$inferInsert;
 
+export const tags = sqliteTable("tags", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  color: text("color").notNull().default("#e8a030"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(current_timestamp)`),
+});
+
+export const seriesTags = sqliteTable(
+  "series_tags",
+  {
+    seriesId: integer("series_id")
+      .notNull()
+      .references(() => series.id),
+    tagId: integer("tag_id")
+      .notNull()
+      .references(() => tags.id),
+  },
+  (table) => [
+    index("idx_series_tags_series").on(table.seriesId),
+    index("idx_series_tags_tag").on(table.tagId),
+  ],
+);
+
 export type AppSettings = typeof appSettings.$inferSelect;
 export type NewAppSettings = typeof appSettings.$inferInsert;
+
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;

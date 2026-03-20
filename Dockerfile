@@ -23,6 +23,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     unrar-free \
+    poppler-utils \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/.next/standalone ./

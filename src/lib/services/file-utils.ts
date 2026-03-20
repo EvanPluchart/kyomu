@@ -3,7 +3,7 @@ import path from "path";
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
-export function getComicFormat(filePath: string): "cbz" | "cbr" | "folder" | null {
+export function getComicFormat(filePath: string): "cbz" | "cbr" | "pdf" | "folder" | null {
   try {
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
@@ -16,6 +16,7 @@ export function getComicFormat(filePath: string): "cbz" | "cbr" | "folder" | nul
   const ext = path.extname(filePath).toLowerCase();
   if (ext === ".cbz") return "cbz";
   if (ext === ".cbr") return "cbr";
+  if (ext === ".pdf") return "pdf";
   return null;
 }
 

@@ -76,13 +76,14 @@ export async function extractComicInfoFromCbr(filePath: string): Promise<ComicIn
 
 export async function extractMetadata(
   filePath: string,
-  format: "cbz" | "cbr" | "folder"
+  format: "cbz" | "cbr" | "pdf" | "folder"
 ): Promise<ComicInfo | null> {
   switch (format) {
     case "cbz":
       return extractComicInfoFromCbz(filePath);
     case "cbr":
       return extractComicInfoFromCbr(filePath);
+    case "pdf":
     case "folder":
       return null;
   }
