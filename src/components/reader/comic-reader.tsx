@@ -5,6 +5,10 @@ import { PageViewer } from "@/components/reader/page-viewer";
 import { ReaderControls } from "@/components/reader/reader-controls";
 import { ProgressBar } from "@/components/reader/progress-bar";
 import { TouchHandler } from "@/components/reader/touch-handler";
+import { VolumeEndOverlay } from "@/components/reader/volume-end-overlay";
+import { VerticalReader } from "@/components/reader/vertical-reader";
+import { ReadingModeToggle } from "@/components/reader/reading-mode-toggle";
+import { ReadingDirectionToggle } from "@/components/reader/reading-direction-toggle";
 
 interface ComicReaderProps {
   comicId: number;
@@ -17,6 +21,19 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [showControls, setShowControls] = useState(false);
+  const [showEndOverlay, setShowEndOverlay] = useState(false);
+  const [readingMode, setReadingMode] = useState<"page" | "vertical">(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem(`reading-mode-${seriesId}`) as "page" | "vertical") ?? "page";
+    }
+    return "page";
+  });
+  const [rtl, setRtl] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(`reading-direction-${seriesId}`) === "rtl";
+    }
+    return false;
+  });
 
   // Fetch page count on mount
   useEffect(() => {
@@ -25,6 +42,31 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
       .then((data: { pageCount: number }) => setTotalPages(data.pageCount))
       .catch(() => {});
   }, [comicId]);
+
+  // Load saved progress on mount
+  useEffect(() => {
+    fetch(`/api/comics/${comicId}/progress`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.progress?.currentPage > 0) {
+          setCurrentPage(data.progress.currentPage);
+        }
+      })
+      .catch(() => {});
+  }, [comicId]);
+
+  // Save progress with debounce
+  useEffect(() => {
+    if (totalPages === 0) return;
+    const timer = setTimeout(() => {
+      fetch(`/api/comics/${comicId}/progress`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPage, totalPages }),
+      }).catch(() => {});
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [currentPage, totalPages, comicId]);
 
   // Preload next pages
   useEffect(() => {
@@ -37,9 +79,22 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
     }
   }, [currentPage, totalPages, comicId]);
 
+  function handleModeChange(mode: "page" | "vertical") {
+    setReadingMode(mode);
+    localStorage.setItem(`reading-mode-${seriesId}`, mode);
+  }
+
+  function handleDirectionToggle() {
+    const newRtl = !rtl;
+    setRtl(newRtl);
+    localStorage.setItem(`reading-direction-${seriesId}`, newRtl ? "rtl" : "ltr");
+  }
+
   const goNext = useCallback(() => {
     if (currentPage < totalPages - 1) {
       setCurrentPage((p) => p + 1);
+    } else if (currentPage >= totalPages - 1) {
+      setShowEndOverlay(true);
     }
   }, [currentPage, totalPages]);
 
@@ -75,13 +130,23 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
 
   return (
     <div className="relative h-screen w-screen overflow-hidden select-none">
-      <TouchHandler
-        onNext={goNext}
-        onPrev={goPrev}
-        onToggleControls={() => setShowControls((prev) => !prev)}
-      >
-        <PageViewer comicId={comicId} pageIndex={currentPage} />
-      </TouchHandler>
+      {readingMode === "vertical" ? (
+        <div className="h-full overflow-y-auto">
+          <VerticalReader
+            comicId={comicId}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      ) : (
+        <TouchHandler
+          onNext={goNext}
+          onPrev={goPrev}
+          onToggleControls={() => setShowControls((prev) => !prev)}
+        >
+          <PageViewer comicId={comicId} pageIndex={currentPage} />
+        </TouchHandler>
+      )}
 
       <ReaderControls
         visible={showControls}
@@ -90,13 +155,23 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
         seriesId={seriesId}
         currentPage={currentPage}
         totalPages={totalPages}
-      />
+      >
+        <ReadingModeToggle mode={readingMode} onModeChange={handleModeChange} />
+        <ReadingDirectionToggle rtl={rtl} onToggle={handleDirectionToggle} />
+      </ReaderControls>
 
       <ProgressBar
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
         visible={showControls}
+      />
+
+      <VolumeEndOverlay
+        visible={showEndOverlay}
+        comicId={comicId}
+        seriesId={seriesId}
+        onClose={() => setShowEndOverlay(false)}
       />
     </div>
   );

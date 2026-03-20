@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,7 @@ interface ReaderControlsProps {
   seriesId: number;
   currentPage: number;
   totalPages: number;
+  children?: ReactNode;
 }
 
 export function ReaderControls({
@@ -18,6 +20,7 @@ export function ReaderControls({
   seriesId,
   currentPage,
   totalPages,
+  children,
 }: ReaderControlsProps) {
   return (
     <div
@@ -37,6 +40,11 @@ export function ReaderControls({
           <p className="text-sm font-medium truncate">{title}</p>
           <p className="text-xs text-white/60 truncate">{seriesTitle}</p>
         </div>
+        {children && (
+          <div className="flex items-center gap-2">
+            {children}
+          </div>
+        )}
         <span className="shrink-0 text-sm text-white/60">
           {currentPage + 1} / {totalPages}
         </span>
