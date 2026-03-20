@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  allowedDevOrigins: ["http://192.168.1.163:3333"],
+  allowedDevOrigins: ["192.168.1.163"],
   serverExternalPackages: [
     "yauzl-promise",
     "@node-rs/crc32",
