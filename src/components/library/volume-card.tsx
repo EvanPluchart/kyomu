@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Check, BookOpen } from "lucide-react";
 
 interface VolumeCardProps {
   comic: {
@@ -13,12 +16,25 @@ interface VolumeCardProps {
 }
 
 export function VolumeCard({ comic }: VolumeCardProps) {
+  const router = useRouter();
   const isRead = comic.status === "read";
   const isReading = comic.status === "reading";
   const progress =
     isReading && comic.currentPage != null && comic.totalPages != null && comic.totalPages > 0
       ? Math.round((comic.currentPage / comic.totalPages) * 100)
       : 0;
+
+  async function handleToggleRead(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const newStatus = isRead ? "unread" : "read";
+    await fetch(`/api/comics/${comic.id}/progress`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    router.refresh();
+  }
 
   return (
     <Link
@@ -34,11 +50,23 @@ export function VolumeCard({ comic }: VolumeCardProps) {
         />
         <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/5" />
 
-        {isRead && (
-          <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-green-500 shadow-lg">
-            <Check className="h-3.5 w-3.5 text-white" />
-          </div>
-        )}
+        {/* Toggle read/unread */}
+        <button
+          onClick={handleToggleRead}
+          className={`absolute top-2 right-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full shadow-lg transition-all duration-200 ${
+            isRead
+              ? "bg-green-500 hover:bg-red-500/80"
+              : "bg-black/50 opacity-0 group-hover:opacity-100 hover:bg-green-500"
+          }`}
+          title={isRead ? "Marquer comme non lu" : "Marquer comme lu"}
+        >
+          {isRead ? (
+            <Check className="h-4 w-4 text-white" />
+          ) : (
+            <BookOpen className="h-3.5 w-3.5 text-white" />
+          )}
+        </button>
+
         {isReading && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40">
             <div

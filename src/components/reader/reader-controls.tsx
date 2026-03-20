@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Maximize } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ReaderControlsProps {
@@ -10,6 +10,7 @@ interface ReaderControlsProps {
   seriesId: number;
   currentPage: number;
   totalPages: number;
+  onFullscreen?: () => void;
   children?: ReactNode;
 }
 
@@ -20,6 +21,7 @@ export function ReaderControls({
   seriesId,
   currentPage,
   totalPages,
+  onFullscreen,
   children,
 }: ReaderControlsProps) {
   return (
@@ -32,7 +34,7 @@ export function ReaderControls({
       <div className="flex items-center gap-3">
         <Link
           href={`/series/${seriesId}`}
-          className="shrink-0 p-1 hover:text-white/80 transition-colors"
+          className="shrink-0 p-2 -m-1 rounded-lg hover:bg-white/10 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -41,11 +43,20 @@ export function ReaderControls({
           <p className="text-xs text-white/60 truncate">{seriesTitle}</p>
         </div>
         {children && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {children}
           </div>
         )}
-        <span className="shrink-0 text-sm text-white/60">
+        {onFullscreen && (
+          <button
+            onClick={onFullscreen}
+            className="cursor-pointer shrink-0 p-2 -m-1 rounded-lg hover:bg-white/10 transition-colors text-white/60 hover:text-white"
+            title="Plein écran (F)"
+          >
+            <Maximize className="h-4 w-4" />
+          </button>
+        )}
+        <span className="shrink-0 text-sm text-white/60 tabular-nums">
           {currentPage + 1} / {totalPages}
         </span>
       </div>

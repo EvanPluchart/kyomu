@@ -72,9 +72,9 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
     return () => clearTimeout(timer);
   }, [currentPage, totalPages, comicId]);
 
-  // Preload next pages
+  // Preload next 4 pages
   useEffect(() => {
-    for (let i = 1; i <= 2; i++) {
+    for (let i = 1; i <= 4; i++) {
       const nextPage = currentPage + i;
       if (nextPage < totalPages) {
         const img = new Image();
@@ -94,6 +94,14 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
     localStorage.setItem(`reading-direction-${seriesId}`, newRtl ? "rtl" : "ltr");
   }
 
+  function handleFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }
+
   const goNext = useCallback(() => {
     if (currentPage < totalPages - 1) {
       setCurrentPage((p) => p + 1);
@@ -111,12 +119,15 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
   // Keyboard navigation
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "ArrowRight" || e.key === "d") {
+      if (e.key === "ArrowRight" || e.key === "d" || e.key === " ") {
+        e.preventDefault();
         goNext();
       } else if (e.key === "ArrowLeft" || e.key === "a") {
         goPrev();
       } else if (e.key === "Escape") {
         setShowControls((prev) => !prev);
+      } else if (e.key === "f" || e.key === "F") {
+        handleFullscreen();
       }
     }
 
@@ -127,7 +138,10 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
   if (totalPages === 0) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p className="text-muted-foreground">Chargement...</p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-primary" />
+          <p className="text-sm text-muted-foreground">Chargement...</p>
+        </div>
       </div>
     );
   }
@@ -159,6 +173,7 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
         seriesId={seriesId}
         currentPage={currentPage}
         totalPages={totalPages}
+        onFullscreen={handleFullscreen}
       >
         <ReadingModeToggle mode={readingMode} onModeChange={handleModeChange} />
         <ReadingDirectionToggle rtl={rtl} onToggle={handleDirectionToggle} />
