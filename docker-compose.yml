@@ -1,0 +1,12 @@
+services:
+  kyomu:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ${COMICS_PATH:-/mnt/media/comics}:/comics:ro
+    environment:
+      - COMICS_PATH=/comics
+      - DATABASE_PATH=/app/data/kyomu.db
+    restart: unless-stopped
