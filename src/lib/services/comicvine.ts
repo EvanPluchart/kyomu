@@ -94,11 +94,11 @@ export async function getPopularVolumes(): Promise<ComicVineSearchResult[]> {
   return data.results ?? [];
 }
 
-export async function getVolumesByPublisher(
-  publisherId: number,
+export async function searchVolumesLarge(
+  query: string,
 ): Promise<ComicVineSearchResult[]> {
   if (!isComicVineConfigured()) return [];
-  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&filter=publisher:${publisherId}&sort=date_added:desc&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
+  const url = `${BASE_URL}/search/?api_key=${config.comicVineApiKey}&format=json&resources=volume&query=${encodeURIComponent(query)}&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
   const response = await fetch(url, {
     headers: { "User-Agent": "Kyomu Comic Reader" },
     next: { revalidate: 3600 },

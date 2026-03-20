@@ -15,11 +15,13 @@ interface Volume {
   inLibrary: boolean;
 }
 
+interface BrowseSection {
+  title: string;
+  items: Volume[];
+}
+
 interface BrowseData {
-  recent: Volume[];
-  popular: Volume[];
-  dc: Volume[];
-  marvel: Volume[];
+  sections: BrowseSection[];
 }
 
 function DiscoverCard({ volume }: { volume: Volume }) {
@@ -166,18 +168,15 @@ export default function DiscoverPage() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : browse ? (
-        /* Browse sections */
+        /* Browse sections — Netflix style */
         <>
-          <DiscoverSection
-            title="Récemment ajoutés sur ComicVine"
-            volumes={browse.recent}
-          />
-          <DiscoverSection
-            title="Les plus populaires"
-            volumes={browse.popular}
-          />
-          <DiscoverSection title="DC Comics" volumes={browse.dc} />
-          <DiscoverSection title="Marvel" volumes={browse.marvel} />
+          {browse.sections.map((section) => (
+            <DiscoverSection
+              key={section.title}
+              title={section.title}
+              volumes={section.items}
+            />
+          ))}
         </>
       ) : null}
     </div>

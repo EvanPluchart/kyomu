@@ -2,20 +2,23 @@ import { NextResponse } from "next/server";
 import {
   getRecentVolumes,
   getPopularVolumes,
-  getVolumesByPublisher,
+  searchVolumesLarge,
 } from "@/lib/services/comicvine";
 import { getKapowarrVolumes } from "@/lib/services/kapowarr";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(): Promise<NextResponse> {
-  const [recent, popular, dc, marvel, kapowarrIds] = await Promise.all([
-    getRecentVolumes(),
-    getPopularVolumes(),
-    getVolumesByPublisher(10), // DC
-    getVolumesByPublisher(31), // Marvel
-    getKapowarrVolumes(),
-  ]);
+  const [recent, popular, batman, spiderman, xmen, starwars, kapowarrIds] =
+    await Promise.all([
+      getRecentVolumes(),
+      getPopularVolumes(),
+      searchVolumesLarge("Batman"),
+      searchVolumesLarge("Spider-Man"),
+      searchVolumesLarge("X-Men"),
+      searchVolumesLarge("Star Wars"),
+      getKapowarrVolumes(),
+    ]);
 
   function enrich(items: typeof recent) {
     return items.map((r) => ({
@@ -25,9 +28,13 @@ export async function GET(): Promise<NextResponse> {
   }
 
   return NextResponse.json({
-    recent: enrich(recent),
-    popular: enrich(popular),
-    dc: enrich(dc),
-    marvel: enrich(marvel),
+    sections: [
+      { title: "Récemment ajoutés", items: enrich(recent) },
+      { title: "Les plus populaires", items: enrich(popular) },
+      { title: "Batman", items: enrich(batman) },
+      { title: "Spider-Man", items: enrich(spiderman) },
+      { title: "X-Men", items: enrich(xmen) },
+      { title: "Star Wars", items: enrich(starwars) },
+    ],
   });
 }
