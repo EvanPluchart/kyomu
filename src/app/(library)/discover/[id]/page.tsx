@@ -14,31 +14,36 @@ interface VolumeDetail {
   start_year: string | null;
   image: { medium_url: string; super_url: string } | null;
   count_of_issues: number;
-  first_issue: {
-    id: number;
-    name: string;
-    issue_number: string;
-  } | null;
-  last_issue: {
-    id: number;
-    name: string;
-    issue_number: string;
-  } | null;
+  first_issue: { id: number; name: string; issue_number: string } | null;
+  last_issue: { id: number; name: string; issue_number: string } | null;
   characters: { id: number; name: string }[] | null;
   inLibrary: boolean;
+}
+
+interface SettingsData {
+  config: {
+    kapowarrConfigured: boolean;
+    mylar3Configured: boolean;
+  };
 }
 
 export default function DiscoverDetailPage() {
   const params = useParams();
   const [volume, setVolume] = useState<VolumeDetail | null>(null);
+  const [settings, setSettings] = useState<SettingsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
-  const [requested, setRequested] = useState(false);
+  const [requestedBackend, setRequestedBackend] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/discover/${params.id}`)
-      .then((r) => r.json())
-      .then((data) => setVolume(data.volume ?? null))
+    Promise.all([
+      fetch(`/api/discover/${params.id}`).then((r) => r.json()),
+      fetch("/api/settings").then((r) => r.json()),
+    ])
+      .then(([discoverData, settingsData]) => {
+        setVolume(discoverData.volume ?? null);
+        setSettings(settingsData);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [params.id]);
@@ -52,7 +57,11 @@ export default function DiscoverDetailPage() {
       body: JSON.stringify({ comicVineId: volume.id }),
     });
     setRequesting(false);
-    if (res.ok) setRequested(true);
+    if (res.ok) {
+      const data = await res.json();
+      const backends = data.backends ?? [];
+      setRequestedBackend(`Envoyé à ${backends.join(" + ")}`);
+    }
   }
 
   if (loading) {
@@ -71,7 +80,9 @@ export default function DiscoverDetailPage() {
     );
   }
 
-  const isInLibrary = volume.inLibrary || requested;
+  const isInLibrary = volume.inLibrary || requestedBackend !== null;
+  const kapowarrAvailable = settings?.config.kapowarrConfigured ?? false;
+  const mylar3Available = settings?.config.mylar3Configured ?? false;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
@@ -120,13 +131,11 @@ export default function DiscoverDetailPage() {
           </div>
 
           {/* Action button */}
-          <div className="flex items-center gap-3">
+          <div className="space-y-2">
             {isInLibrary ? (
               <div className="flex items-center gap-2 rounded-xl bg-green-500/10 px-4 py-2.5 text-sm font-medium text-green-500">
                 <Check className="h-5 w-5" />
-                {requested
-                  ? "Ajouté à Kapowarr"
-                  : "Déjà en bibliothèque"}
+                {requestedBackend ?? "Déjà en bibliothèque"}
               </div>
             ) : (
               <Button
@@ -150,22 +159,14 @@ export default function DiscoverDetailPage() {
             <div className="flex gap-6 text-sm">
               {volume.first_issue && (
                 <div>
-                  <span className="text-muted-foreground">
-                    Premier numéro :{" "}
-                  </span>
-                  <span className="font-medium">
-                    #{volume.first_issue.issue_number}
-                  </span>
+                  <span className="text-muted-foreground">Premier numéro : </span>
+                  <span className="font-medium">#{volume.first_issue.issue_number}</span>
                 </div>
               )}
               {volume.last_issue && (
                 <div>
-                  <span className="text-muted-foreground">
-                    Dernier numéro :{" "}
-                  </span>
-                  <span className="font-medium">
-                    #{volume.last_issue.issue_number}
-                  </span>
+                  <span className="text-muted-foreground">Dernier numéro : </span>
+                  <span className="font-medium">#{volume.last_issue.issue_number}</span>
                 </div>
               )}
             </div>
@@ -176,10 +177,7 @@ export default function DiscoverDetailPage() {
       {/* Description */}
       {volume.description && (
         <div className="space-y-2">
-          <h2
-            className="text-lg font-semibold"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
+          <h2 className="text-lg font-semibold" style={{ fontFamily: "var(--font-display)" }}>
             Synopsis
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
@@ -191,10 +189,7 @@ export default function DiscoverDetailPage() {
       {/* Characters */}
       {volume.characters && volume.characters.length > 0 && (
         <div className="space-y-2">
-          <h2
-            className="text-lg font-semibold"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
+          <h2 className="text-lg font-semibold" style={{ fontFamily: "var(--font-display)" }}>
             Personnages
           </h2>
           <div className="flex flex-wrap gap-2">

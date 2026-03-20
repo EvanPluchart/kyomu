@@ -6,52 +6,61 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const body = await request.json();
-  const { comicVineId, backend } = body;
+  const { comicVineId } = body;
 
   if (!comicVineId) {
     return NextResponse.json({ error: "comicVineId requis" }, { status: 400 });
   }
 
-  // If a specific backend is requested, use it
-  if (backend === "mylar3") {
-    if (!isMylar3Configured()) {
-      return NextResponse.json({ error: "Mylar3 non configuré" }, { status: 503 });
-    }
-    const result = await requestMylar3Volume(comicVineId);
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-    return NextResponse.json({ status: "ok", backend: "mylar3" });
-  }
+  const backends: string[] = [];
+  const errors: string[] = [];
 
-  if (backend === "kapowarr") {
-    if (!isKapowarrConfigured()) {
-      return NextResponse.json({ error: "Kapowarr non configuré" }, { status: 503 });
-    }
-    const result = await requestVolume(comicVineId);
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-    return NextResponse.json({ status: "ok", backend: "kapowarr" });
-  }
+  // Send to both backends in parallel — first to download wins
+  const promises: Promise<void>[] = [];
 
-  // Auto: try Kapowarr first, then Mylar3
   if (isKapowarrConfigured()) {
-    const result = await requestVolume(comicVineId);
-    if (result.success) {
-      return NextResponse.json({ status: "ok", backend: "kapowarr" });
-    }
+    promises.push(
+      requestVolume(comicVineId).then((result) => {
+        if (result.success) {
+          backends.push("kapowarr");
+        } else {
+          errors.push(`Kapowarr: ${result.error}`);
+        }
+      }),
+    );
   }
 
   if (isMylar3Configured()) {
-    const result = await requestMylar3Volume(comicVineId);
-    if (result.success) {
-      return NextResponse.json({ status: "ok", backend: "mylar3" });
-    }
+    promises.push(
+      requestMylar3Volume(comicVineId).then((result) => {
+        if (result.success) {
+          backends.push("mylar3");
+        } else {
+          errors.push(`Mylar3: ${result.error}`);
+        }
+      }),
+    );
   }
 
-  return NextResponse.json(
-    { error: "Aucun backend de téléchargement configuré" },
-    { status: 503 },
-  );
+  if (promises.length === 0) {
+    return NextResponse.json(
+      { error: "Aucun backend de téléchargement configuré" },
+      { status: 503 },
+    );
+  }
+
+  await Promise.allSettled(promises);
+
+  if (backends.length === 0) {
+    return NextResponse.json(
+      { error: errors.join(", ") || "Échec sur tous les backends" },
+      { status: 400 },
+    );
+  }
+
+  return NextResponse.json({
+    status: "ok",
+    backends,
+    message: `Envoyé à ${backends.join(" + ")}`,
+  });
 }
