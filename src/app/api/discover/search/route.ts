@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchVolumes } from "@/lib/services/comicvine";
 import { getKapowarrVolumes } from "@/lib/services/kapowarr";
+import { getMylar3Volumes } from "@/lib/services/mylar3";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +12,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "q requis" }, { status: 400 });
   }
 
-  const [results, kapowarrIds] = await Promise.all([
+  const [results, kapowarrIds, mylar3Ids] = await Promise.all([
     searchVolumes(query),
     getKapowarrVolumes(),
+    getMylar3Volumes(),
   ]);
+
+  const libraryIds = new Set([...kapowarrIds, ...mylar3Ids]);
 
   const enriched = results.map((r) => ({
     id: r.id,
@@ -24,7 +28,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     start_year: r.start_year,
     image: r.image,
     count_of_issues: r.count_of_issues,
-    inLibrary: kapowarrIds.includes(r.id),
+    inLibrary: libraryIds.has(r.id),
   }));
 
   return NextResponse.json({ results: enriched });

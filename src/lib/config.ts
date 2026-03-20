@@ -8,6 +8,9 @@ export type Config = {
   kapowarrUrl: string;
   kapowarrApiKey: string;
   kapowarrInternalUrl: string;
+  mylar3Url: string;
+  mylar3ApiKey: string;
+  mylar3InternalUrl: string;
   comicVineApiKey: string;
 };
 
@@ -20,6 +23,9 @@ export const config: Config = {
   kapowarrUrl: process.env.KAPOWARR_URL ?? "",
   kapowarrApiKey: process.env.KAPOWARR_API_KEY ?? "",
   kapowarrInternalUrl: process.env.KAPOWARR_INTERNAL_URL ?? "http://localhost:5656",
+  mylar3Url: process.env.MYLAR3_URL ?? "",
+  mylar3ApiKey: process.env.MYLAR3_API_KEY ?? "",
+  mylar3InternalUrl: process.env.MYLAR3_INTERNAL_URL ?? "http://localhost:8090",
   comicVineApiKey: process.env.COMICVINE_API_KEY ?? "",
 };
 

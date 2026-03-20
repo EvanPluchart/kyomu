@@ -21,6 +21,7 @@ export async function GET(): Promise<NextResponse> {
       kapowarrUrl: config.kapowarrUrl,
       comicVineConfigured: config.comicVineApiKey.length > 0,
       kapowarrConfigured: config.kapowarrApiKey.length > 0,
+      mylar3Configured: config.mylar3ApiKey.length > 0,
     },
     stats: {
       series: seriesCount.total,

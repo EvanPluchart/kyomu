@@ -5,11 +5,12 @@ import {
   searchVolumesLarge,
 } from "@/lib/services/comicvine";
 import { getKapowarrVolumes } from "@/lib/services/kapowarr";
+import { getMylar3Volumes } from "@/lib/services/mylar3";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(): Promise<NextResponse> {
-  const [recent, popular, batman, spiderman, xmen, starwars, kapowarrIds] =
+  const [recent, popular, batman, spiderman, xmen, starwars, kapowarrIds, mylar3Ids] =
     await Promise.all([
       getRecentVolumes(),
       getPopularVolumes(),
@@ -18,12 +19,15 @@ export async function GET(): Promise<NextResponse> {
       searchVolumesLarge("X-Men"),
       searchVolumesLarge("Star Wars"),
       getKapowarrVolumes(),
+      getMylar3Volumes(),
     ]);
+
+  const libraryIds = new Set([...kapowarrIds, ...mylar3Ids]);
 
   function enrich(items: typeof recent) {
     return items.map((r) => ({
       ...r,
-      inLibrary: kapowarrIds.includes(r.id),
+      inLibrary: libraryIds.has(r.id),
     }));
   }
 
