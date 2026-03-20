@@ -1,0 +1,41 @@
+import fs from "fs";
+import path from "path";
+
+export type Config = {
+  comicsPath: string;
+  scanIntervalMinutes: number;
+  databasePath: string;
+};
+
+export const config: Config = {
+  comicsPath: process.env.COMICS_PATH ?? "/mnt/media/comics",
+  scanIntervalMinutes: process.env.SCAN_INTERVAL_MINUTES
+    ? parseInt(process.env.SCAN_INTERVAL_MINUTES, 10)
+    : 60,
+  databasePath: process.env.DATABASE_PATH ?? "./data/kyomu.db",
+};
+
+export function validateConfig(): void {
+  try {
+    fs.accessSync(config.comicsPath, fs.constants.R_OK);
+  } catch {
+    console.warn(
+      `[config] Le dossier comicsPath "${config.comicsPath}" n'existe pas ou n'est pas lisible. Il peut être monté ultérieurement (Docker).`
+    );
+  }
+
+  if (!Number.isFinite(config.scanIntervalMinutes) || config.scanIntervalMinutes <= 0) {
+    console.warn(
+      `[config] scanIntervalMinutes doit être un nombre positif, valeur actuelle : ${config.scanIntervalMinutes}`
+    );
+  }
+
+  const dbDir = path.dirname(path.resolve(config.databasePath));
+  try {
+    fs.accessSync(dbDir, fs.constants.F_OK);
+  } catch {
+    console.warn(
+      `[config] Le dossier parent de databasePath "${dbDir}" n'existe pas.`
+    );
+  }
+}
