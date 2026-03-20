@@ -10,10 +10,12 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // Stats
   const [seriesCount] = await db.select({ total: count() }).from(series);
   const [comicsCount] = await db.select({ total: count() }).from(comics);
-  const [readCount] = await db.select({ total: count() }).from(readingProgress).where(eq(readingProgress.status, "read"));
+  const [readCount] = await db
+    .select({ total: count() })
+    .from(readingProgress)
+    .where(eq(readingProgress.status, "read"));
 
   const totalSeries = seriesCount.total;
   const totalComics = comicsCount.total;
@@ -21,14 +23,12 @@ export default async function HomePage() {
 
   if (totalSeries === 0) {
     return (
-      <div className="space-y-6 animate-fade-in">
-        <h1 className="text-3xl font-bold">Bibliothèque</h1>
+      <div className="animate-fade-in">
         <EmptyState />
       </div>
     );
   }
 
-  // Continuer la lecture (comics en cours)
   const inProgress = await db
     .select({
       comicId: comics.id,
@@ -45,7 +45,6 @@ export default async function HomePage() {
     .orderBy(desc(readingProgress.updatedAt))
     .limit(10);
 
-  // Récemment ajoutés
   const recent = await db
     .select({
       id: comics.id,
@@ -59,30 +58,35 @@ export default async function HomePage() {
     .limit(10);
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Bibliothèque</h1>
-        <Link
-          href="/series"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Voir toutes les séries →
-        </Link>
+    <div className="space-y-10 animate-fade-in">
+      <div className="space-y-4">
+        <div className="flex items-end justify-between">
+          <div className="space-y-1">
+            <h1
+              className="text-3xl font-bold tracking-tight"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Bibliothèque
+            </h1>
+          </div>
+          <Link
+            href="/series"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            Toutes les séries →
+          </Link>
+        </div>
+
+        <LibraryStats
+          totalSeries={totalSeries}
+          totalComics={totalComics}
+          totalRead={totalRead}
+        />
       </div>
 
-      <LibraryStats
-        totalSeries={totalSeries}
-        totalComics={totalComics}
-        totalRead={totalRead}
-      />
+      {inProgress.length > 0 && <ContinueReading comics={inProgress} />}
 
-      {inProgress.length > 0 && (
-        <ContinueReading comics={inProgress} />
-      )}
-
-      {recent.length > 0 && (
-        <RecentAdditions comics={recent} />
-      )}
+      {recent.length > 0 && <RecentAdditions comics={recent} />}
     </div>
   );
 }

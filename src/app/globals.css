@@ -1,48 +1,50 @@
 @import "tailwindcss";
 
+/* ── Light theme (warm paper) ── */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 0 72% 41%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
+  --background: 40 20% 97%;
+  --foreground: 20 20% 10%;
+  --card: 40 15% 94%;
+  --card-foreground: 20 20% 10%;
+  --popover: 40 15% 94%;
+  --popover-foreground: 20 20% 10%;
+  --primary: 25 95% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 35 10% 90%;
+  --secondary-foreground: 20 20% 10%;
+  --muted: 35 10% 90%;
+  --muted-foreground: 20 10% 45%;
+  --accent: 25 95% 50%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 0 72% 41%;
-  --radius: 0.5rem;
+  --border: 35 12% 86%;
+  --input: 35 12% 86%;
+  --ring: 25 95% 50%;
+  --radius: 0.75rem;
 }
 
+/* ── Dark theme (deep cinematic) ── */
 .dark {
-  --background: 230 15% 6%;
-  --foreground: 0 0% 98%;
-  --card: 230 15% 8%;
-  --card-foreground: 0 0% 98%;
-  --popover: 230 15% 8%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 72% 51%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 230 10% 15%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 230 10% 15%;
-  --muted-foreground: 230 5% 64.9%;
-  --accent: 0 72% 51%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
+  --background: 220 20% 4%;
+  --foreground: 40 10% 90%;
+  --card: 220 18% 7%;
+  --card-foreground: 40 10% 90%;
+  --popover: 220 18% 7%;
+  --popover-foreground: 40 10% 90%;
+  --primary: 30 100% 55%;
+  --primary-foreground: 220 20% 4%;
+  --secondary: 220 15% 12%;
+  --secondary-foreground: 40 10% 80%;
+  --muted: 220 15% 12%;
+  --muted-foreground: 220 10% 50%;
+  --accent: 30 100% 55%;
+  --accent-foreground: 220 20% 4%;
+  --destructive: 0 63% 31%;
   --destructive-foreground: 0 0% 98%;
-  --border: 230 10% 14%;
-  --input: 230 10% 14%;
-  --ring: 0 72% 51%;
+  --border: 220 15% 11%;
+  --input: 220 15% 11%;
+  --ring: 30 100% 55%;
 }
 
 @theme inline {
@@ -69,6 +71,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --font-display: "Outfit", sans-serif;
+  --font-body: "DM Sans", sans-serif;
 }
 
 @layer base {
@@ -77,15 +81,31 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 }
 
+/* ── Scrollbar ── */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Animations ── */
 @layer utilities {
   .animate-fade-in {
-    animation: fade-in 0.3s ease-out;
+    animation: fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .animate-slide-up {
-    animation: slide-up 0.3s ease-out;
+    animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -95,6 +115,39 @@
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Cover card glow effect ── */
+.cover-glow {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cover-glow:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 8px 30px -4px hsl(var(--primary) / 0.15),
+    0 0 0 1px hsl(var(--primary) / 0.08);
+}
+
+/* ── Noise texture overlay ── */
+.noise::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Horizontal scroll fade edges ── */
+.scroll-fade {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 2rem,
+    black calc(100% - 3rem),
+    transparent
+  );
 }

@@ -26,16 +26,16 @@ export function Filters() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       {STATUSES.map((s) => (
         <button
           key={s.value}
           onClick={() => handleStatusChange(s.value)}
           className={cn(
-            "cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-all duration-200",
+            "cursor-pointer rounded-lg px-3.5 py-1.5 text-sm font-medium transition-all duration-200",
             currentStatus === s.value
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
           )}
         >
           {s.label}

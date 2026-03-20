@@ -32,3 +32,9 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Extracted images (unrar temp files)
+/Batman*
+/Flash*
+/Star*
+/The*

@@ -1,12 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Outfit, DM_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-display",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
-  title: "Kyomu",
+  title: "Kyomu — 虚無",
   description: "Lecteur de comics self-hosted",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -17,13 +25,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0f",
+  themeColor: "#080b14",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };
 
-// Le contenu est une chaîne statique hardcodée — aucun risque XSS
 const SW_REGISTER_SCRIPT = `
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -34,7 +41,6 @@ const SW_REGISTER_SCRIPT = `
 
 function ServiceWorkerRegister() {
   return (
-    // biome-ignore lint/security/noDangerouslySetInnerHtml: contenu statique hardcodé, pas de données utilisateur
     <script dangerouslySetInnerHTML={{ __html: SW_REGISTER_SCRIPT }} />
   );
 }
@@ -46,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased min-h-screen bg-background`}>
+      <body className={`${outfit.variable} ${dmSans.variable} antialiased min-h-screen bg-background noise`}>
         <ThemeProvider>
           <ServiceWorkerRegister />
           {children}

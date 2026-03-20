@@ -9,19 +9,20 @@ export function SeriesCard({ series }: SeriesCardProps) {
   return (
     <Link
       href={`/series/${series.id}`}
-      className="group block space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 rounded-lg"
+      className="group block space-y-3 cover-glow rounded-xl"
     >
-      <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
+      <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted">
         <img
           src={`/api/library/series/${series.id}/thumbnail`}
           alt={series.title}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+        {/* Subtle vignette */}
+        <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/5" />
       </div>
-      <div className="space-y-1">
-        <h3 className="text-sm font-medium leading-tight line-clamp-2">
+      <div className="space-y-0.5 px-0.5">
+        <h3 className="text-sm font-semibold leading-tight line-clamp-1" style={{ fontFamily: "var(--font-display)" }}>
           {series.title}
         </h3>
         <p className="text-xs text-muted-foreground">

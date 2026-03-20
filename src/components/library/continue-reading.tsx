@@ -16,31 +16,44 @@ interface ContinueReadingProps {
 
 export function ContinueReading({ comics }: ContinueReadingProps) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-xl font-semibold">Continuer la lecture</h2>
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+        Continuer la lecture
+      </h2>
       <HorizontalScroll>
-        {comics.map((comic) => (
-          <Link
-            key={comic.comicId}
-            href={`/read/${comic.comicId}`}
-            className="group shrink-0 w-32 space-y-2"
-          >
-            <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
-              <img
-                src={`/api/comics/${comic.comicId}/thumbnail`}
-                alt={comic.comicTitle}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform group-hover:scale-105"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-xs text-white text-center">
-                {comic.currentPage}/{comic.totalPages}
+        {comics.map((comic) => {
+          const progress = comic.totalPages > 0
+            ? Math.round((comic.currentPage / comic.totalPages) * 100)
+            : 0;
+
+          return (
+            <Link
+              key={comic.comicId}
+              href={`/read/${comic.comicId}`}
+              className="group shrink-0 w-36 space-y-2 snap-start cover-glow rounded-xl"
+            >
+              <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted">
+                <img
+                  src={`/api/comics/${comic.comicId}/thumbnail`}
+                  alt={comic.comicTitle}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
+                />
+                <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/5" />
+                {/* Progress bar at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40">
+                  <div
+                    className="h-full bg-primary transition-all"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
               </div>
-            </div>
-            <p className="text-xs font-medium leading-tight line-clamp-2">
-              {comic.comicTitle}
-            </p>
-          </Link>
-        ))}
+              <p className="text-xs font-medium leading-tight line-clamp-2 px-0.5">
+                {comic.comicTitle}
+              </p>
+            </Link>
+          );
+        })}
       </HorizontalScroll>
     </section>
   );

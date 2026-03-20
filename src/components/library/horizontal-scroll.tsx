@@ -6,8 +6,10 @@ interface HorizontalScrollProps {
 
 export function HorizontalScroll({ children }: HorizontalScrollProps) {
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
-      {children}
+    <div className="relative">
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-fade pl-1">
+        {children}
+      </div>
     </div>
   );
 }

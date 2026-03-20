@@ -22,7 +22,6 @@ export function SearchBar() {
     [router, searchParams],
   );
 
-  // Debounce 300ms
   useEffect(() => {
     const timer = setTimeout(() => {
       updateSearch(query);
@@ -32,13 +31,13 @@ export function SearchBar() {
 
   return (
     <div className="relative">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <input
         type="text"
-        placeholder="Rechercher une série..."
+        placeholder="Rechercher..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="h-10 w-full rounded-md border border-input bg-background px-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
+        className="h-10 w-full rounded-xl border-0 bg-muted/50 px-10 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-muted transition-all duration-200"
       />
     </div>
   );
