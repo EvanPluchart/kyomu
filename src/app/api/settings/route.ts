@@ -20,6 +20,7 @@ export async function GET(): Promise<NextResponse> {
       scanIntervalMinutes: config.scanIntervalMinutes,
       kapowarrUrl: config.kapowarrUrl,
       comicVineConfigured: config.comicVineApiKey.length > 0,
+      kapowarrConfigured: config.kapowarrApiKey.length > 0,
     },
     stats: {
       series: seriesCount.total,

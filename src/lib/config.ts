@@ -6,6 +6,8 @@ export type Config = {
   scanIntervalMinutes: number;
   databasePath: string;
   kapowarrUrl: string;
+  kapowarrApiKey: string;
+  kapowarrInternalUrl: string;
   comicVineApiKey: string;
 };
 
@@ -16,6 +18,8 @@ export const config: Config = {
     : 60,
   databasePath: process.env.DATABASE_PATH ?? "./data/kyomu.db",
   kapowarrUrl: process.env.KAPOWARR_URL ?? "",
+  kapowarrApiKey: process.env.KAPOWARR_API_KEY ?? "",
+  kapowarrInternalUrl: process.env.KAPOWARR_INTERNAL_URL ?? "http://localhost:5656",
   comicVineApiKey: process.env.COMICVINE_API_KEY ?? "",
 };
 
