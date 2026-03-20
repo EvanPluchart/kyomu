@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { series, comics } from "@/lib/db/schema";
 import { eq, notInArray, sql } from "drizzle-orm";
 import { config } from "@/lib/config";
-import { getComicFormat, slugify, extractNumberFromFilename } from "./file-utils";
+import { getComicFormat, slugify, extractNumberFromFilename, cleanComicTitle } from "./file-utils";
 
 /** Parcourt récursivement un dossier et retourne tous les fichiers comic trouvés */
 function findComicFilesRecursive(dirPath: string): string[] {
@@ -134,7 +134,7 @@ export async function scanLibrary(): Promise<ScanResult> {
         const fileSize = stat.size;
         const fileMtime = Math.floor(stat.mtimeMs);
         const fileName = path.basename(entryPath);
-        const comicTitle = path.basename(fileName, path.extname(fileName));
+        const comicTitle = cleanComicTitle(fileName);
         const number = extractNumberFromFilename(fileName);
 
         try {
