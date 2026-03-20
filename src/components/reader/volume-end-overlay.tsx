@@ -29,12 +29,13 @@ export function VolumeEndOverlay({
 
   useEffect(() => {
     if (!visible) return;
-    setLoading(true);
 
+    let cancelled = false;
     // Fetch the next volume from the API
     fetch(`/api/library/series/${seriesId}`)
       .then((res) => res.json())
       .then((data) => {
+        if (cancelled) return;
         const comics = data.comics || [];
         const currentIndex = comics.findIndex((c: { id: number }) => c.id === comicId);
         if (currentIndex >= 0 && currentIndex < comics.length - 1) {
@@ -44,8 +45,10 @@ export function VolumeEndOverlay({
           setNextVolume(null);
         }
       })
-      .catch(() => setNextVolume(null))
-      .finally(() => setLoading(false));
+      .catch(() => { if (!cancelled) setNextVolume(null); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+
+    return () => { cancelled = true; };
   }, [visible, comicId, seriesId]);
 
   if (!visible) return null;
