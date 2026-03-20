@@ -25,22 +25,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unrar-free \
   && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd --system nodejs && useradd --system --gid nodejs nextjs
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+COPY --from=build /app/drizzle ./drizzle
 
-COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=build --chown=nextjs:nodejs /app/public ./public
-COPY --from=build --chown=nextjs:nodejs /app/drizzle ./drizzle
+# Copy node_modules with symlinks preserved
+RUN --mount=from=build,source=/app/node_modules,target=/tmp/nm cp -a /tmp/nm ./node_modules
 
-# Copy node_modules with symlinks preserved (pnpm needs symlinks for native modules)
-RUN --mount=from=build,source=/app/node_modules,target=/tmp/nm cp -a /tmp/nm ./node_modules && chown -R nextjs:nodejs ./node_modules
-
-COPY --chown=nextjs:nodejs start.sh ./
+COPY start.sh ./
 RUN chmod +x start.sh
 
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
-
-USER nextjs
+RUN mkdir -p /app/data
 
 ENV HOSTNAME="0.0.0.0"
 ENV PORT="3000"
