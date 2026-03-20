@@ -11,11 +11,15 @@ out/
 .env.local
 .env.production
 
-# Data (SQLite + cache)
+# Data (SQLite + cache + thumbnails)
 data/*.db
 data/*.db-shm
 data/*.db-wal
 data/cache/
+data/thumbnails/
+
+# Playwright
+.playwright-mcp/
 
 # Coverage
 coverage/

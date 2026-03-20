@@ -39,8 +39,12 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
   useEffect(() => {
     fetch(`/api/comics/${comicId}/pages`)
       .then((res) => res.json())
-      .then((data: { pageCount: number }) => setTotalPages(data.pageCount))
-      .catch(() => {});
+      .then((data: { pageCount: number }) => {
+        setTotalPages(data.pageCount);
+      })
+      .catch((err) => {
+        console.error("[reader] Failed to fetch pages:", err);
+      });
   }, [comicId]);
 
   // Load saved progress on mount

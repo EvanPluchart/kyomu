@@ -18,6 +18,7 @@ export function SeriesCard({ series }: SeriesCardProps) {
           loading="lazy"
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
       <div className="space-y-1">
         <h3 className="text-sm font-medium leading-tight line-clamp-2">

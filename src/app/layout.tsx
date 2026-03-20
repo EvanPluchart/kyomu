@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { Header } from "@/components/layout/header";
-import { BottomNav } from "@/components/layout/nav";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -36,7 +35,6 @@ const SW_REGISTER_SCRIPT = `
 function ServiceWorkerRegister() {
   return (
     // biome-ignore lint/security/noDangerouslySetInnerHtml: contenu statique hardcodé, pas de données utilisateur
-    // eslint-disable-next-line react/no-danger
     <script dangerouslySetInnerHTML={{ __html: SW_REGISTER_SCRIPT }} />
   );
 }
@@ -47,14 +45,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark">
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.className} antialiased min-h-screen bg-background`}>
-        <ServiceWorkerRegister />
-        <Header />
-        <main className="container mx-auto px-4 py-6 pb-20 md:pb-6">
+        <ThemeProvider>
+          <ServiceWorkerRegister />
           {children}
-        </main>
-        <BottomNav />
+        </ThemeProvider>
       </body>
     </html>
   );
