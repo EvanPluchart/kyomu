@@ -20,7 +20,7 @@ const mobileLinks = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/series", label: "Séries", icon: Library },
   { href: "/discover", label: "Découvrir", icon: Compass },
-  { href: "/settings", label: "Plus", icon: Settings },
+  { href: "/settings", label: "Paramètres", icon: Settings },
 ];
 
 export function Nav({ className }: NavProps) {
