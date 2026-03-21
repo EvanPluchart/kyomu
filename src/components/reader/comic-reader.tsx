@@ -11,6 +11,7 @@ import { ReadingModeToggle } from "@/components/reader/reading-mode-toggle";
 import { ReadingDirectionToggle } from "@/components/reader/reading-direction-toggle";
 import { NightModeToggle } from "@/components/reader/night-mode-toggle";
 import { BookmarkButton } from "@/components/reader/bookmark-button";
+import { BrightnessSlider } from "@/components/reader/brightness-slider";
 
 interface ComicReaderProps {
   comicId: number;
@@ -37,6 +38,7 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
     return false;
   });
   const [nightMode, setNightMode] = useState(false);
+  const [brightness, setBrightness] = useState(1);
   const [bookmark, setBookmark] = useState<number | null>(null);
 
   // Fetch page count on mount
@@ -174,7 +176,7 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
 
   return (
     <div className="relative h-screen w-screen overflow-hidden select-none">
-      <div style={{ filter: nightMode ? "sepia(0.3) brightness(0.85)" : "none" }}>
+      <div style={{ filter: `brightness(${nightMode ? 0.85 * brightness : brightness}) ${nightMode ? "sepia(0.3)" : ""}`.trim() }}>
         {readingMode === "vertical" ? (
           <div className="h-full overflow-y-auto">
             <VerticalReader
@@ -207,6 +209,7 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
         <ReadingDirectionToggle rtl={rtl} onToggle={handleDirectionToggle} />
         <NightModeToggle enabled={nightMode} onToggle={() => setNightMode(!nightMode)} />
         <BookmarkButton isBookmarked={bookmark === currentPage} onToggle={handleBookmarkToggle} />
+        <BrightnessSlider value={brightness} onChange={setBrightness} />
       </ReaderControls>
 
       <ProgressBar

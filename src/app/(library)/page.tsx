@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/library/empty-state";
 import { PendingRequests } from "@/components/library/pending-requests";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { BookOpen, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -88,6 +89,26 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+      )}
+
+      {inProgress.length > 0 && (
+        <Link
+          href={`/read/${inProgress[0].comicId}`}
+          className="flex items-center gap-4 rounded-xl bg-primary/10 p-4 hover:bg-primary/15 transition-colors cursor-pointer"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <BookOpen className="h-6 w-6" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)" }}>
+              Reprendre la lecture
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {inProgress[0].seriesTitle} {inProgress[0].comicTitle !== inProgress[0].seriesTitle ? `\u2014 ${inProgress[0].comicTitle}` : ""}
+            </p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-primary" />
+        </Link>
       )}
 
       <div className="space-y-4">
