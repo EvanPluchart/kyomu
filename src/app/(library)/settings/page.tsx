@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor, BarChart3 } from "lucide-react";
+import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor, BarChart3, LogOut } from "lucide-react";
 import { AccentPicker } from "@/components/layout/accent-picker";
 import { Toast } from "@/components/ui/toast";
 import { formatRelativeDate } from "@/lib/utils";
@@ -286,6 +286,21 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* Section Déconnexion */}
+      <section className="space-y-4">
+        <Button
+          variant="outline"
+          onClick={async () => {
+            await fetch("/api/auth/logout", { method: "POST" });
+            window.location.href = "/login";
+          }}
+          className="w-full gap-2 rounded-xl cursor-pointer hover:text-foreground text-destructive"
+        >
+          <LogOut className="h-4 w-4" />
+          Se déconnecter
+        </Button>
       </section>
 
       <Toast message={toast ?? ""} visible={toast !== null} onClose={() => setToast(null)} />
