@@ -11,6 +11,7 @@ interface SettingsData {
     comicsPath: string;
     scanIntervalMinutes: number;
     kapowarrUrl: string;
+    mylar3Url: string;
   };
   stats: {
     series: number;
@@ -274,6 +275,21 @@ export default function SettingsPage() {
                 className="inline-flex items-center gap-1 text-primary hover:underline"
               >
                 Ouvrir Kapowarr
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          )}
+
+          {settings?.config.mylar3Url && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Mylar3</span>
+              <a
+                href={settings.config.mylar3Url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:underline"
+              >
+                Ouvrir Mylar3
                 <ExternalLink className="h-3 w-3" />
               </a>
             </div>

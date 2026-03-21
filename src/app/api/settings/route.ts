@@ -26,6 +26,7 @@ export async function GET(): Promise<NextResponse> {
       comicsPath: config.comicsPath,
       scanIntervalMinutes: config.scanIntervalMinutes,
       kapowarrUrl: config.kapowarrUrl,
+      mylar3Url: config.mylar3Url,
       comicVineConfigured: config.comicVineApiKey.length > 0,
       kapowarrConfigured: config.kapowarrApiKey.length > 0,
       mylar3Configured: config.mylar3ApiKey.length > 0,
