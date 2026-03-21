@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kyomu — Self-hosted Comic Reader</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #080b14;
+      --card: #0f1420;
+      --text: #e4e0d8;
+      --muted: #6b6b7b;
+      --primary: #e8a030;
+      --border: #1a1f2e;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+    .hero-kanji {
+      font-size: 64px;
+      font-family: serif;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--bg);
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--muted); }
+
+    /* Screenshots */
+    .screenshots {
+      padding: 40px 0;
+    }
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .screenshot-grid img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .screenshot-grid img:first-child {
+      grid-column: 1 / -1;
+    }
+
+    /* Features */
+    .features {
+      padding: 60px 0;
+    }
+    .features h2 {
+      font-size: 32px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      padding: 20px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+    .feature-card .emoji { font-size: 24px; margin-bottom: 8px; }
+    .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .feature-card p { font-size: 14px; color: var(--muted); }
+
+    /* Install */
+    .install {
+      padding: 60px 0;
+      text-align: center;
+    }
+    .install h2 { font-size: 32px; margin-bottom: 16px; }
+    .install p { color: var(--muted); margin-bottom: 24px; }
+    .code-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      max-width: 600px;
+      margin: 0 auto;
+      color: var(--muted);
+    }
+    .code-block .highlight { color: var(--primary); }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 32px; }
+      .screenshot-grid { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <section class="hero">
+      <span class="hero-kanji">虚</span>
+      <h1>Kyomu</h1>
+      <p>A lightweight, modern, self-hosted comic reader. Built for speed, designed for immersion.</p>
+      <div class="hero-buttons">
+        <a href="https://github.com/EvanPluchart/kyomu" class="btn btn-primary">
+          ⭐ GitHub
+        </a>
+        <a href="https://github.com/EvanPluchart/kyomu#quick-start" class="btn btn-outline">
+          Get Started
+        </a>
+      </div>
+    </section>
+
+    <section class="screenshots">
+      <div class="screenshot-grid">
+        <img src="screenshots/home.png" alt="Kyomu Home" loading="lazy">
+        <img src="screenshots/series.png" alt="Series Library" loading="lazy">
+        <img src="screenshots/discover.png" alt="Discover" loading="lazy">
+      </div>
+    </section>
+
+    <section class="features">
+      <h2>Everything you need</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="emoji">📚</div>
+          <h3>Smart Library</h3>
+          <p>Auto-scan CBZ, CBR, PDF and image folders. Supports Kapowarr & Mylar3 directory structures.</p>
+        </div>
+        <div class="feature-card">
+          <div class="emoji">📖</div>
+          <h3>Immersive Reader</h3>
+          <p>Page-by-page, vertical scroll, double-page. Night mode, bookmarks, brightness control.</p>
+        </div>
+        <div class="feature-card">
+          <div class="emoji">🔍</div>
+          <h3>Discover & Download</h3>
+          <p>Browse ComicVine catalog. One-click download via Kapowarr or Mylar3. Like Seerr, but for comics.</p>
+        </div>
+        <div class="feature-card">
+          <div class="emoji">👤</div>
+          <h3>Multi-Profile</h3>
+          <p>Netflix-style profiles. Each user has their own reading progress and preferences.</p>
+        </div>
+        <div class="feature-card">
+          <div class="emoji">🎨</div>
+          <h3>Beautiful Design</h3>
+          <p>Dark & light themes. Customizable accent colors. Responsive, touch-first interface.</p>
+        </div>
+        <div class="feature-card">
+          <div class="emoji">⚡</div>
+          <h3>Lightweight</h3>
+          <p>Built with Next.js and SQLite. Minimal resource usage compared to Java-based alternatives.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="install">
+      <h2>Get started in seconds</h2>
+      <p>Just Docker and your comics folder.</p>
+      <div class="code-block">
+        <span class="highlight">docker compose up -d</span>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>
+        Made by <a href="https://github.com/EvanPluchart">Evan Pluchart</a> ·
+        <a href="https://github.com/EvanPluchart/kyomu">GitHub</a> ·
+        MIT License
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
