@@ -5,6 +5,7 @@ import { ContinueReading } from "@/components/library/continue-reading";
 import { RecentAdditions } from "@/components/library/recent-additions";
 import { LibraryStats } from "@/components/library/library-stats";
 import { EmptyState } from "@/components/library/empty-state";
+import { PendingRequests } from "@/components/library/pending-requests";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -86,7 +87,7 @@ export default async function HomePage() {
 
       {inProgress.length > 0 && <ContinueReading comics={inProgress} />}
 
-      {recent.length > 0 && <RecentAdditions comics={recent} />}
+      {recent.length > 0 && <RecentAdditions comics={recent} />}\n\n      <PendingRequests />
     </div>
   );
 }
