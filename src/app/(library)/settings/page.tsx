@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor } from "lucide-react";
 import { AccentPicker } from "@/components/layout/accent-picker";
+import { Toast } from "@/components/ui/toast";
 
 interface SettingsData {
   config: {
@@ -36,6 +37,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<SettingsData | null>(null);
   const [scanStatus, setScanStatus] = useState<ScanStatus | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/settings").then((r) => r.json()).then(setSettings).catch(() => {});
@@ -52,6 +54,7 @@ export default function SettingsPage() {
           setScanStatus(status);
           if (!status.isScanning) {
             setScanning(false);
+            setToast("Scan terminé !");
             fetch("/api/settings").then((r) => r.json()).then(setSettings).catch(() => {});
           }
         })
@@ -296,6 +299,8 @@ export default function SettingsPage() {
           )}
         </div>
       </section>
+
+      <Toast message={toast ?? ""} visible={toast !== null} onClose={() => setToast(null)} />
     </div>
   );
 }

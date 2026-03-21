@@ -3,6 +3,7 @@ import type { Series } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ChevronLeft } from "lucide-react";
 import { ComicVineEnricher } from "@/components/library/comicvine-enricher";
+import { MarkAllReadButton } from "@/components/library/mark-all-read-button";
 
 interface SeriesHeaderProps {
   series: Series;
@@ -84,6 +85,7 @@ export function SeriesHeader({ series, comicsCount, continueComicId }: SeriesHea
                 </Button>
               </Link>
             )}
+            <MarkAllReadButton seriesId={series.id} />
             <ComicVineEnricher seriesId={series.id} seriesTitle={series.title} />
           </div>
         </div>

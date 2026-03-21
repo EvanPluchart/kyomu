@@ -1,0 +1,27 @@
+services:
+  kyomu:
+    build: .
+    container_name: kyomu
+    ports:
+      - "3000:3000"
+    volumes:
+      - kyomu-data:/app/data
+      - /path/to/your/comics:/comics:ro
+    environment:
+      - COMICS_PATH=/comics
+      - DATABASE_PATH=/app/data/kyomu.db
+      - SCAN_INTERVAL_MINUTES=60
+      # Optional: ComicVine API key for metadata enrichment
+      # - COMICVINE_API_KEY=your_key_here
+      # Optional: Kapowarr integration
+      # - KAPOWARR_API_KEY=your_key
+      # - KAPOWARR_INTERNAL_URL=http://kapowarr:5656
+      # - KAPOWARR_URL=http://localhost:5656
+      # Optional: Mylar3 integration
+      # - MYLAR3_API_KEY=your_key
+      # - MYLAR3_INTERNAL_URL=http://mylar3:8090
+      # - MYLAR3_URL=http://localhost:8090
+    restart: unless-stopped
+
+volumes:
+  kyomu-data:
