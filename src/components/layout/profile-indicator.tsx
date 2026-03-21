@@ -13,18 +13,23 @@ export function ProfileIndicator() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    // Read profile ID from cookie
     const match = document.cookie.match(/kyomu-profile=(\d+)/);
-    if (!match) return;
 
-    const profileId = match[1];
     fetch("/api/profiles")
       .then((r) => r.json())
       .then((d) => {
-        const found = (d.profiles ?? []).find(
-          (p: ProfileData) => p.id === parseInt(profileId, 10),
-        );
-        if (found) setProfile(found);
+        const profiles = d.profiles ?? [];
+        if (profiles.length === 0) return; // Pas de profils, ne rien afficher
+
+        if (match) {
+          const found = profiles.find(
+            (p: ProfileData) => p.id === parseInt(match[1], 10),
+          );
+          if (found) { setProfile(found); return; }
+        }
+
+        // Des profils existent mais aucun sélectionné — afficher un fallback
+        setProfile({ id: 0, name: "Profil", color: "#666" });
       })
       .catch(() => {});
   }, []);

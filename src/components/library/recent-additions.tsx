@@ -38,7 +38,7 @@ export function RecentAdditions({ comics }: RecentAdditionsProps) {
               <p className="text-xs font-medium leading-tight line-clamp-2">
                 {comic.title}
               </p>
-              {comic.seriesTitle && (
+              {comic.seriesTitle && comic.seriesTitle !== comic.title && (
                 <p className="text-xs text-muted-foreground truncate mt-0.5">
                   {comic.seriesTitle}
                 </p>

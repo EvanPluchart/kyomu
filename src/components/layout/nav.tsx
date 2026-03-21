@@ -2,22 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Library, BookOpen, Settings, Tag, Compass, Download, History } from "lucide-react";
+import { Home, Library, BookOpen, Settings, Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavProps {
   className?: string;
 }
 
-const links = [
+const mainLinks = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/series", label: "Séries", icon: Library },
   { href: "/discover", label: "Découvrir", icon: Compass },
-  { href: "/requests", label: "Requêtes", icon: Download },
   { href: "/reading", label: "En cours", icon: BookOpen },
-  { href: "/history", label: "Historique", icon: History },
-  { href: "/tags", label: "Tags", icon: Tag },
-  { href: "/settings", label: "Paramètres", icon: Settings },
+];
+
+const mobileLinks = [
+  { href: "/", label: "Accueil", icon: Home },
+  { href: "/series", label: "Séries", icon: Library },
+  { href: "/discover", label: "Découvrir", icon: Compass },
+  { href: "/settings", label: "Plus", icon: Settings },
 ];
 
 export function Nav({ className }: NavProps) {
@@ -25,7 +28,7 @@ export function Nav({ className }: NavProps) {
 
   return (
     <nav className={cn("flex items-center gap-1", className)}>
-      {links.map((link) => (
+      {mainLinks.map((link) => (
         <Link
           key={link.href}
           href={link.href}
@@ -51,7 +54,7 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl md:hidden">
       <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="flex items-center justify-around h-16">
-        {links.map((link) => (
+        {mobileLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}

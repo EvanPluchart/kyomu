@@ -91,6 +91,20 @@ export function cleanComicTitle(filename: string): string {
     return kapowarr.seriesName;
   }
 
+  const nameWithoutExt = path.basename(filename, path.extname(filename));
+
+  // Pattern Mylar3 : "Title v01 (2025) (Digital) (Group)"
+  const mylarClean = nameWithoutExt
+    .replace(/\s+v\d+\s*\(.*$/i, "")  // "Title v01 (2025)..." → "Title"
+    .replace(/\s*\(\d{4}\).*$/, "")     // "Title (2025)..." → "Title"
+    .replace(/\s*\(Digital\).*$/i, "")   // "Title (Digital)..." → "Title"
+    .replace(/\s*#\d+.*$/, "")           // "Title #1..." → "Title"
+    .trim();
+
+  if (mylarClean && mylarClean !== nameWithoutExt) {
+    return mylarClean;
+  }
+
   // Fallback : nom sans extension
-  return path.basename(filename, path.extname(filename));
+  return nameWithoutExt;
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle } from "lucide-react";
+import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor } from "lucide-react";
 import { AccentPicker } from "@/components/layout/accent-picker";
 
 interface SettingsData {
@@ -85,6 +86,28 @@ export default function SettingsPage() {
       >
         Paramètres
       </h1>
+
+      {/* Section Navigation */}
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
+          Navigation
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { href: "/requests", label: "Requêtes", icon: Download },
+            { href: "/history", label: "Historique", icon: History },
+            { href: "/tags", label: "Tags", icon: Tag },
+            { href: "/reading", label: "En cours", icon: BookOpen },
+            { href: "/profiles", label: "Profils", icon: Users },
+            { href: "/kiosk", label: "Kiosque", icon: Monitor },
+          ].map((link) => (
+            <Link key={link.href} href={link.href} className="flex items-center gap-3 rounded-xl bg-card p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+              <link.icon className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">{link.label}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Section Scan */}
       <section className="space-y-4">
