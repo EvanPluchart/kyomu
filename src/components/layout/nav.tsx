@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Library, BookOpen, Settings, Tag, Compass, Download } from "lucide-react";
+import { Home, Library, BookOpen, Settings, Tag, Compass, Download, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavProps {
@@ -15,6 +15,7 @@ const links = [
   { href: "/discover", label: "Découvrir", icon: Compass },
   { href: "/requests", label: "Requêtes", icon: Download },
   { href: "/reading", label: "En cours", icon: BookOpen },
+  { href: "/history", label: "Historique", icon: History },
   { href: "/tags", label: "Tags", icon: Tag },
   { href: "/settings", label: "Paramètres", icon: Settings },
 ];

@@ -4,6 +4,7 @@ import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { SeriesHeader } from "@/components/library/series-header";
 import { VolumeGrid } from "@/components/library/volume-grid";
+import { SimilarSeries } from "@/components/library/similar-series";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,7 @@ export default async function SeriesDetailPage({
         continueComicId={continueComic?.id ?? null}
       />
       <VolumeGrid comics={comicsRows} />
+      <SimilarSeries seriesTitle={seriesData.title} />
     </div>
   );
 }
