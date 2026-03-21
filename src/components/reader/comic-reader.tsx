@@ -9,6 +9,8 @@ import { VolumeEndOverlay } from "@/components/reader/volume-end-overlay";
 import { VerticalReader } from "@/components/reader/vertical-reader";
 import { ReadingModeToggle } from "@/components/reader/reading-mode-toggle";
 import { ReadingDirectionToggle } from "@/components/reader/reading-direction-toggle";
+import { NightModeToggle } from "@/components/reader/night-mode-toggle";
+import { BookmarkButton } from "@/components/reader/bookmark-button";
 
 interface ComicReaderProps {
   comicId: number;
@@ -34,6 +36,8 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
     }
     return false;
   });
+  const [nightMode, setNightMode] = useState(false);
+  const [bookmark, setBookmark] = useState<number | null>(null);
 
   // Fetch page count on mount
   useEffect(() => {
@@ -82,6 +86,28 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
       }
     }
   }, [currentPage, totalPages, comicId]);
+
+  // Load bookmark on mount
+  useEffect(() => {
+    try {
+      const bm = JSON.parse(localStorage.getItem("kyomu-bookmarks") ?? "{}");
+      if (bm[String(comicId)] !== undefined) {
+        setBookmark(bm[String(comicId)]);
+      }
+    } catch {}
+  }, [comicId]);
+
+  function handleBookmarkToggle() {
+    const bm = JSON.parse(localStorage.getItem("kyomu-bookmarks") ?? "{}");
+    if (bookmark === currentPage) {
+      delete bm[String(comicId)];
+      setBookmark(null);
+    } else {
+      bm[String(comicId)] = currentPage;
+      setBookmark(currentPage);
+    }
+    localStorage.setItem("kyomu-bookmarks", JSON.stringify(bm));
+  }
 
   function handleModeChange(mode: "page" | "vertical") {
     setReadingMode(mode);
@@ -148,23 +174,25 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
 
   return (
     <div className="relative h-screen w-screen overflow-hidden select-none">
-      {readingMode === "vertical" ? (
-        <div className="h-full overflow-y-auto">
-          <VerticalReader
-            comicId={comicId}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      ) : (
-        <TouchHandler
-          onNext={goNext}
-          onPrev={goPrev}
-          onToggleControls={() => setShowControls((prev) => !prev)}
-        >
-          <PageViewer comicId={comicId} pageIndex={currentPage} />
-        </TouchHandler>
-      )}
+      <div style={{ filter: nightMode ? "sepia(0.3) brightness(0.85)" : "none" }}>
+        {readingMode === "vertical" ? (
+          <div className="h-full overflow-y-auto">
+            <VerticalReader
+              comicId={comicId}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        ) : (
+          <TouchHandler
+            onNext={goNext}
+            onPrev={goPrev}
+            onToggleControls={() => setShowControls((prev) => !prev)}
+          >
+            <PageViewer comicId={comicId} pageIndex={currentPage} />
+          </TouchHandler>
+        )}
+      </div>
 
       <ReaderControls
         visible={showControls}
@@ -177,6 +205,8 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
       >
         <ReadingModeToggle mode={readingMode} onModeChange={handleModeChange} />
         <ReadingDirectionToggle rtl={rtl} onToggle={handleDirectionToggle} />
+        <NightModeToggle enabled={nightMode} onToggle={() => setNightMode(!nightMode)} />
+        <BookmarkButton isBookmarked={bookmark === currentPage} onToggle={handleBookmarkToggle} />
       </ReaderControls>
 
       <ProgressBar

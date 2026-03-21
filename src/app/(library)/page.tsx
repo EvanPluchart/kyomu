@@ -6,6 +6,7 @@ import { RecentAdditions } from "@/components/library/recent-additions";
 import { LibraryStats } from "@/components/library/library-stats";
 import { EmptyState } from "@/components/library/empty-state";
 import { PendingRequests } from "@/components/library/pending-requests";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,8 @@ export default async function HomePage() {
   const totalSeries = seriesCount.total;
   const totalComics = comicsCount.total;
   const totalRead = readCount.total;
+
+  const [latestSeries] = await db.select().from(series).orderBy(desc(series.createdAt)).limit(1);
 
   if (totalSeries === 0) {
     return (
@@ -60,6 +63,33 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-10 animate-fade-in">
+      {latestSeries && (
+        <div className="relative overflow-hidden rounded-2xl h-48 sm:h-64">
+          <img
+            src={`/api/library/series/${latestSeries.id}/thumbnail`}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover blur-xl scale-110 opacity-40"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+          <div className="relative flex h-full items-center gap-6 px-6">
+            <img
+              src={`/api/library/series/${latestSeries.id}/thumbnail`}
+              alt={latestSeries.title}
+              className="h-full aspect-[2/3] rounded-xl object-cover shadow-2xl"
+            />
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Dernière série ajoutée</p>
+              <h2 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
+                {latestSeries.title}
+              </h2>
+              <Link href={`/series/${latestSeries.id}`}>
+                <Button className="gap-2 rounded-xl">Parcourir</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="flex items-end justify-between">
           <div className="space-y-1">

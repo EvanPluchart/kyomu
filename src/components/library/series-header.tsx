@@ -68,6 +68,13 @@ export function SeriesHeader({ series, comicsCount, continueComicId }: SeriesHea
             )}
           </div>
 
+          <Link
+            href={`/discover?q=${encodeURIComponent(series.title)}`}
+            className="text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            Voir sur ComicVine →
+          </Link>
+
           <div className="flex flex-wrap items-center gap-3">
             {continueComicId && (
               <Link href={`/read/${continueComicId}`}>

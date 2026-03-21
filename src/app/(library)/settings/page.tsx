@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle } from "lucide-react";
+import { AccentPicker } from "@/components/layout/accent-picker";
 
 interface SettingsData {
   config: {
@@ -228,6 +229,11 @@ export default function SettingsPage() {
               Ouvrir
               <ExternalLink className="h-3 w-3" />
             </a>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Couleur d'accent</span>
+            <AccentPicker />
           </div>
 
           <div className="flex items-center justify-between text-sm">
