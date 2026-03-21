@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor, BarChart3 } from "lucide-react";
 import { AccentPicker } from "@/components/layout/accent-picker";
 import { Toast } from "@/components/ui/toast";
+import { formatRelativeDate } from "@/lib/utils";
 
 interface SettingsData {
   config: {
@@ -68,20 +69,6 @@ export default function SettingsPage() {
     await fetch("/api/library/scan", { method: "POST" }).catch(() => {});
   }, []);
 
-  function formatDate(iso: string | null): string {
-    if (!iso) return "Jamais";
-    const date = new Date(iso);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMin = Math.floor(diffMs / 60000);
-
-    if (diffMin < 1) return "À l'instant";
-    if (diffMin < 60) return `Il y a ${diffMin} min`;
-    const diffH = Math.floor(diffMin / 60);
-    if (diffH < 24) return `Il y a ${diffH}h`;
-    return date.toLocaleDateString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
-  }
-
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-fade-in">
       <h1
@@ -129,7 +116,7 @@ export default function SettingsPage() {
             <div className="space-y-1">
               <p className="text-sm font-medium">Dernier scan</p>
               <p className="text-xs text-muted-foreground">
-                {formatDate(scanStatus?.lastScanAt ?? null)}
+                {scanStatus?.lastScanAt ? formatRelativeDate(scanStatus.lastScanAt) : "Jamais"}
               </p>
             </div>
             <Button

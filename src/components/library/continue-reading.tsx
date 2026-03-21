@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HorizontalScroll } from "@/components/library/horizontal-scroll";
+import { calculateProgress } from "@/lib/utils";
 
 interface ContinueReadingComic {
   comicId: number;
@@ -22,9 +23,7 @@ export function ContinueReading({ comics }: ContinueReadingProps) {
       </h2>
       <HorizontalScroll>
         {comics.map((comic) => {
-          const progress = comic.totalPages > 0
-            ? Math.round((comic.currentPage / comic.totalPages) * 100)
-            : 0;
+          const progress = calculateProgress(comic.currentPage, comic.totalPages);
 
           return (
             <Link

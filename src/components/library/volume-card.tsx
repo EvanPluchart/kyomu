@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, BookOpen } from "lucide-react";
+import { calculateProgress } from "@/lib/utils";
 
 interface VolumeCardProps {
   comic: {
@@ -20,8 +21,8 @@ export function VolumeCard({ comic }: VolumeCardProps) {
   const isRead = comic.status === "read";
   const isReading = comic.status === "reading";
   const progress =
-    isReading && comic.currentPage != null && comic.totalPages != null && comic.totalPages > 0
-      ? Math.round((comic.currentPage / comic.totalPages) * 100)
+    isReading && comic.currentPage != null && comic.totalPages != null
+      ? calculateProgress(comic.currentPage, comic.totalPages)
       : 0;
 
   async function handleToggleRead(e: React.MouseEvent) {

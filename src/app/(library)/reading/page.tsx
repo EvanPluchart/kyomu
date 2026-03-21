@@ -1,18 +1,14 @@
 import { db } from "@/lib/db";
 import { comics, series, readingProgress } from "@/lib/db/schema";
-import { eq, desc, and, isNull } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import Link from "next/link";
-import { getActiveProfileId } from "@/lib/profile";
+import { getProfileCondition } from "@/lib/profile";
+import { calculateProgress } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReadingPage() {
-  const profileId = await getActiveProfileId();
-
-  const profileCondition =
-    profileId != null
-      ? eq(readingProgress.profileId, profileId)
-      : isNull(readingProgress.profileId);
+  const profileCondition = await getProfileCondition();
 
   const inProgress = await db
     .select({
@@ -55,10 +51,7 @@ export default async function ReadingPage() {
       ) : (
         <div className="space-y-3">
           {inProgress.map((comic) => {
-            const progress =
-              comic.totalPages > 0
-                ? Math.round((comic.currentPage / comic.totalPages) * 100)
-                : 0;
+            const progress = calculateProgress(comic.currentPage, comic.totalPages);
 
             return (
               <Link

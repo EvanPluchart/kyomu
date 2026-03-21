@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
-import { getActiveProfileId } from "@/lib/profile";
+import { eq, and } from "drizzle-orm";
+import { getProfileCondition } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +17,7 @@ export async function GET(
     return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
   }
 
-  const profileId = await getActiveProfileId();
-  const profileCondition =
-    profileId != null
-      ? eq(readingProgress.profileId, profileId)
-      : isNull(readingProgress.profileId);
+  const profileCondition = await getProfileCondition();
 
   const rows = await db
     .select({

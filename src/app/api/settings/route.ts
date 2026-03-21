@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { count, eq, and, isNull } from "drizzle-orm";
+import { count, eq, and } from "drizzle-orm";
 import { config } from "@/lib/config";
-import { getActiveProfileId } from "@/lib/profile";
+import { getProfileCondition } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(): Promise<NextResponse> {
-  const profileId = await getActiveProfileId();
-  const profileCondition =
-    profileId != null
-      ? eq(readingProgress.profileId, profileId)
-      : isNull(readingProgress.profileId);
+  const profileCondition = await getProfileCondition();
 
   const [seriesCount] = await db.select({ total: count() }).from(series);
   const [comicsCount] = await db.select({ total: count() }).from(comics);

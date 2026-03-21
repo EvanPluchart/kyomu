@@ -1,12 +1,12 @@
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { eq, asc, and, isNull, count } from "drizzle-orm";
+import { eq, asc, and, count } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SeriesHeader } from "@/components/library/series-header";
 import { VolumeGrid } from "@/components/library/volume-grid";
 import { SimilarSeries } from "@/components/library/similar-series";
-import { getActiveProfileId } from "@/lib/profile";
+import { getProfileCondition } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -29,12 +29,7 @@ export default async function SeriesDetailPage({ params, searchParams }: SeriesD
   if (seriesRows.length === 0) notFound();
   const seriesData = seriesRows[0];
 
-  const profileId = await getActiveProfileId();
-
-  const profileCondition =
-    profileId != null
-      ? eq(readingProgress.profileId, profileId)
-      : isNull(readingProgress.profileId);
+  const profileCondition = await getProfileCondition();
 
   // Compter le total de comics pour la pagination
   const [{ total: totalComics }] = await db

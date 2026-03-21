@@ -1,18 +1,14 @@
 import { db } from "@/lib/db";
 import { comics, series, readingProgress } from "@/lib/db/schema";
-import { eq, desc, or, and, isNull } from "drizzle-orm";
+import { eq, desc, or, and } from "drizzle-orm";
 import Link from "next/link";
-import { getActiveProfileId } from "@/lib/profile";
+import { getProfileCondition } from "@/lib/profile";
+import { formatRelativeDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function HistoryPage() {
-  const profileId = await getActiveProfileId();
-
-  const profileCondition =
-    profileId != null
-      ? eq(readingProgress.profileId, profileId)
-      : isNull(readingProgress.profileId);
+  const profileCondition = await getProfileCondition();
 
   const history = await db
     .select({
@@ -82,18 +78,4 @@ export default async function HistoryPage() {
       )}
     </div>
   );
-}
-
-function formatRelativeDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "À l'instant";
-  if (diffMin < 60) return `${diffMin}min`;
-  const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `${diffH}h`;
-  const diffD = Math.floor(diffH / 24);
-  if (diffD < 7) return `${diffD}j`;
-  return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }

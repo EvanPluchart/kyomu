@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { profiles } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { profiles, readingProgress } from "@/lib/db/schema";
+import { eq, isNull } from "drizzle-orm";
 
 const COOKIE_NAME = "kyomu-profile";
 
@@ -33,6 +33,13 @@ export async function getActiveProfile(): Promise<{
     .where(eq(profiles.id, id))
     .limit(1);
   return rows[0] ?? null;
+}
+
+export async function getProfileCondition() {
+  const profileId = await getActiveProfileId();
+  return profileId != null
+    ? eq(readingProgress.profileId, profileId)
+    : isNull(readingProgress.profileId);
 }
 
 export async function ensureDefaultProfile(): Promise<number> {

@@ -22,8 +22,6 @@ interface BrowseSection {
   items: Volume[];
 }
 
-// ── Catalogue structure ──
-
 interface SubCategory {
   label: string;
   query: string;
@@ -127,8 +125,6 @@ const CATEGORIES: Category[] = [
     ],
   },
 ];
-
-// ── Components ──
 
 function DiscoverCard({ volume }: { volume: Volume }) {
   return (
@@ -316,8 +312,6 @@ function Sidebar({
   );
 }
 
-// ── Discover Random Button ──
-
 function DiscoverRandomButton() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -343,8 +337,6 @@ function DiscoverRandomButton() {
     </button>
   );
 }
-
-// ── Main page ──
 
 export default function DiscoverPage() {
   const [browse, setBrowse] = useState<{ sections: BrowseSection[] } | null>(null);

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { count, eq, desc, and, isNull } from "drizzle-orm";
+import { count, eq, desc, and } from "drizzle-orm";
 import { ContinueReading } from "@/components/library/continue-reading";
 import { RecentAdditions } from "@/components/library/recent-additions";
 import { LibraryStats } from "@/components/library/library-stats";
@@ -9,18 +9,13 @@ import { PendingRequests } from "@/components/library/pending-requests";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BookOpen, ArrowRight } from "lucide-react";
-import { getActiveProfileId } from "@/lib/profile";
+import { getProfileCondition } from "@/lib/profile";
 import { RandomReadButton } from "@/components/library/random-read-button";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const profileId = await getActiveProfileId();
-
-  const profileCondition =
-    profileId != null
-      ? eq(readingProgress.profileId, profileId)
-      : isNull(readingProgress.profileId);
+  const profileCondition = await getProfileCondition();
 
   const [seriesCount] = await db.select({ total: count() }).from(series);
   const [comicsCount] = await db.select({ total: count() }).from(comics);
