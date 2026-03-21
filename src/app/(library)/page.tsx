@@ -138,7 +138,9 @@ export default async function HomePage() {
 
       {inProgress.length > 0 && <ContinueReading comics={inProgress} />}
 
-      {recent.length > 0 && <RecentAdditions comics={recent} />}\n\n      <PendingRequests />
+      {recent.length > 0 && <RecentAdditions comics={recent} />}
+
+      <PendingRequests />
     </div>
   );
 }

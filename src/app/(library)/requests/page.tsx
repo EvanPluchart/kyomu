@@ -111,7 +111,7 @@ export default function RequestsPage() {
           size="sm"
           onClick={loadRequests}
           disabled={loading}
-          className="gap-2 rounded-xl cursor-pointer"
+          className="gap-2 rounded-xl cursor-pointer hover:text-foreground"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Actualiser

@@ -175,10 +175,10 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden select-none">
-      <div style={{ filter: `brightness(${nightMode ? 0.85 * brightness : brightness}) ${nightMode ? "sepia(0.3)" : ""}`.trim() }}>
+    <div className={`relative h-screen w-screen select-none ${readingMode === "vertical" ? "overflow-y-auto" : "overflow-hidden"}`}>
+      <div className="h-full w-full" style={{ filter: `brightness(${nightMode ? 0.85 * brightness : brightness}) ${nightMode ? "sepia(0.3)" : ""}`.trim() }}>
         {readingMode === "vertical" ? (
-          <div className="h-full overflow-y-auto">
+          <div className="h-screen overflow-y-auto">
             <VerticalReader
               comicId={comicId}
               totalPages={totalPages}

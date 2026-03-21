@@ -63,24 +63,24 @@ export function VerticalReader({
   );
 
   return (
-    <div className="flex flex-col items-center gap-1 py-4">
+    <div className="flex flex-col items-center gap-0.5 py-2">
       {Array.from({ length: totalPages }, (_, index) => (
         <div
           key={index}
           ref={setPageRef(index)}
           data-page-index={index}
-          className="w-full max-w-3xl"
+          className="w-full max-w-2xl mx-auto px-2"
         >
           {loadedPages.has(index) ? (
             <img
               src={`/api/comics/${comicId}/pages/${index}`}
               alt={`Page ${index + 1}`}
-              className="w-full"
+              className="w-full h-auto"
               loading="lazy"
               draggable={false}
             />
           ) : (
-            <div className="aspect-[2/3] w-full animate-pulse bg-muted" />
+            <div className="aspect-[2/3] w-full animate-pulse bg-muted rounded-lg" />
           )}
         </div>
       ))}
