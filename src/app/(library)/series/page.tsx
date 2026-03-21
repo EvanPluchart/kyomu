@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/library/search-bar";
 import { Filters } from "@/components/library/filters";
 import { SortSelect } from "@/components/library/sort-select";
 import { Suspense } from "react";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ function getOrderBy(sort: string | undefined) {
 
 export default async function SeriesPage({ searchParams }: SeriesPageProps) {
   const { q, status, sort } = await searchParams;
+  const profileId = await getActiveProfileId();
 
   // Build query with filters
   const conditions = [];
@@ -41,12 +43,17 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
   }
 
   if (status && ["unread", "reading", "read"].includes(status)) {
+    const profileSql =
+      profileId != null
+        ? sql`AND ${readingProgress.profileId} = ${profileId}`
+        : sql`AND ${readingProgress.profileId} IS NULL`;
+
     conditions.push(
       sql`${series.id} IN (
         SELECT ${comics.seriesId}
         FROM ${comics}
         LEFT JOIN ${readingProgress} ON ${readingProgress.comicId} = ${comics.id}
-        WHERE ${readingProgress.status} = ${status}
+        WHERE ${readingProgress.status} = ${status} ${profileSql}
       )`,
     );
   }

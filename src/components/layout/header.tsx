@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Nav } from "@/components/layout/nav";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { ProfileIndicator } from "@/components/layout/profile-indicator";
 
 export function Header() {
   return (
@@ -16,6 +17,7 @@ export function Header() {
         </Link>
         <div className="flex items-center gap-1">
           <Nav className="hidden md:flex" />
+          <ProfileIndicator />
           <ThemeToggle />
         </div>
       </div>

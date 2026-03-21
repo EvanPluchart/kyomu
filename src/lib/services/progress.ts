@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { readingProgress } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, isNull, type SQL } from "drizzle-orm";
 
 interface ProgressData {
   currentPage: number;
@@ -10,11 +10,21 @@ interface ProgressData {
   completedAt: string | null;
 }
 
-export async function getProgress(comicId: number): Promise<ProgressData | null> {
+function profileFilter(profileId?: number | null): SQL {
+  if (profileId != null) {
+    return eq(readingProgress.profileId, profileId);
+  }
+  return isNull(readingProgress.profileId);
+}
+
+export async function getProgress(
+  comicId: number,
+  profileId?: number | null,
+): Promise<ProgressData | null> {
   const rows = await db
     .select()
     .from(readingProgress)
-    .where(eq(readingProgress.comicId, comicId))
+    .where(and(eq(readingProgress.comicId, comicId), profileFilter(profileId)))
     .limit(1);
 
   if (rows.length === 0) return null;
@@ -33,6 +43,7 @@ export async function saveProgress(
   comicId: number,
   currentPage: number,
   totalPages: number,
+  profileId?: number | null,
 ): Promise<void> {
   const now = new Date().toISOString();
   const isLastPage = currentPage >= totalPages - 1;
@@ -41,12 +52,13 @@ export async function saveProgress(
   const existing = await db
     .select()
     .from(readingProgress)
-    .where(eq(readingProgress.comicId, comicId))
+    .where(and(eq(readingProgress.comicId, comicId), profileFilter(profileId)))
     .limit(1);
 
   if (existing.length === 0) {
     await db.insert(readingProgress).values({
       comicId,
+      profileId: profileId ?? null,
       currentPage,
       totalPages,
       status,
@@ -64,25 +76,32 @@ export async function saveProgress(
         completedAt: isLastPage ? now : existing[0].completedAt,
         updatedAt: now,
       })
-      .where(eq(readingProgress.comicId, comicId));
+      .where(
+        and(eq(readingProgress.comicId, comicId), profileFilter(profileId)),
+      );
   }
 }
 
 export async function markAs(
   comicId: number,
   status: "read" | "unread",
+  profileId?: number | null,
 ): Promise<void> {
   const now = new Date().toISOString();
+  const condition = and(
+    eq(readingProgress.comicId, comicId),
+    profileFilter(profileId),
+  );
 
   const existing = await db
     .select()
     .from(readingProgress)
-    .where(eq(readingProgress.comicId, comicId))
+    .where(condition)
     .limit(1);
 
   if (status === "unread") {
     if (existing.length > 0) {
-      await db.delete(readingProgress).where(eq(readingProgress.comicId, comicId));
+      await db.delete(readingProgress).where(condition);
     }
     return;
   }
@@ -91,6 +110,7 @@ export async function markAs(
   if (existing.length === 0) {
     await db.insert(readingProgress).values({
       comicId,
+      profileId: profileId ?? null,
       currentPage: 0,
       totalPages: 0,
       status: "read",
@@ -106,6 +126,6 @@ export async function markAs(
         completedAt: now,
         updatedAt: now,
       })
-      .where(eq(readingProgress.comicId, comicId));
+      .where(condition);
   }
 }

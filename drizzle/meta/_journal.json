@@ -15,6 +15,13 @@
       "when": 1774036290093,
       "tag": "0001_mean_ultimates",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1774055209885,
+      "tag": "0002_foamy_spiral",
+      "breakpoints": true
     }
   ]
 }

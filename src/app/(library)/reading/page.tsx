@@ -1,11 +1,19 @@
 import { db } from "@/lib/db";
 import { comics, series, readingProgress } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, isNull } from "drizzle-orm";
 import Link from "next/link";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReadingPage() {
+  const profileId = await getActiveProfileId();
+
+  const profileCondition =
+    profileId != null
+      ? eq(readingProgress.profileId, profileId)
+      : isNull(readingProgress.profileId);
+
   const inProgress = await db
     .select({
       comicId: comics.id,
@@ -20,7 +28,7 @@ export default async function ReadingPage() {
     .from(readingProgress)
     .innerJoin(comics, eq(comics.id, readingProgress.comicId))
     .leftJoin(series, eq(series.id, comics.seriesId))
-    .where(eq(readingProgress.status, "reading"))
+    .where(and(eq(readingProgress.status, "reading"), profileCondition))
     .orderBy(desc(readingProgress.updatedAt));
 
   return (

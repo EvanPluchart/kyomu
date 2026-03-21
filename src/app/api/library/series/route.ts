@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
 import { like, or, asc, desc, count, sql } from "drizzle-orm";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -46,13 +47,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   if (status && ["unread", "reading", "read"].includes(status)) {
+    const profileId = await getActiveProfileId();
+    const profileSql =
+      profileId != null
+        ? sql`AND ${readingProgress.profileId} = ${profileId}`
+        : sql`AND ${readingProgress.profileId} IS NULL`;
+
     // Filter by status requires a subquery to check readingProgress
     conditions.push(
       sql`${series.id} IN (
         SELECT ${comics.seriesId}
         FROM ${comics}
         LEFT JOIN ${readingProgress} ON ${readingProgress.comicId} = ${comics.id}
-        WHERE ${readingProgress.status} = ${status}
+        WHERE ${readingProgress.status} = ${status} ${profileSql}
       )`,
     );
   }

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and, isNull } from "drizzle-orm";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,12 @@ export async function GET(
 
   const seriesData = seriesRows[0];
 
+  const profileId = await getActiveProfileId();
+  const profileCondition =
+    profileId != null
+      ? eq(readingProgress.profileId, profileId)
+      : isNull(readingProgress.profileId);
+
   const comicsRows = await db
     .select({
       id: comics.id,
@@ -44,7 +51,10 @@ export async function GET(
       progressStatus: readingProgress.status,
     })
     .from(comics)
-    .leftJoin(readingProgress, eq(readingProgress.comicId, comics.id))
+    .leftJoin(
+      readingProgress,
+      and(eq(readingProgress.comicId, comics.id), profileCondition),
+    )
     .where(eq(comics.seriesId, seriesId))
     .orderBy(asc(comics.number));
 

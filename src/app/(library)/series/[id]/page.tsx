@@ -1,10 +1,11 @@
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and, isNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { SeriesHeader } from "@/components/library/series-header";
 import { VolumeGrid } from "@/components/library/volume-grid";
 import { SimilarSeries } from "@/components/library/similar-series";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,14 @@ export default async function SeriesDetailPage({
   if (seriesRows.length === 0) notFound();
   const seriesData = seriesRows[0];
 
-  // Fetch comics avec progression
+  const profileId = await getActiveProfileId();
+
+  const profileCondition =
+    profileId != null
+      ? eq(readingProgress.profileId, profileId)
+      : isNull(readingProgress.profileId);
+
+  // Fetch comics avec progression filtrée par profil
   const comicsRows = await db
     .select({
       id: comics.id,
@@ -34,13 +42,16 @@ export default async function SeriesDetailPage({
       status: readingProgress.status,
     })
     .from(comics)
-    .leftJoin(readingProgress, eq(readingProgress.comicId, comics.id))
+    .leftJoin(
+      readingProgress,
+      and(eq(readingProgress.comicId, comics.id), profileCondition),
+    )
     .where(eq(comics.seriesId, seriesId))
     .orderBy(asc(comics.number), asc(comics.id));
 
   // Trouver le premier volume non lu ou en cours pour "Continuer la lecture"
   const continueComic = comicsRows.find(
-    (c) => c.status === "reading" || c.status === null || c.status === "unread"
+    (c) => c.status === "reading" || c.status === null || c.status === "unread",
   );
 
   return (

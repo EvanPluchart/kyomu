@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProgress, saveProgress, markAs } from "@/lib/services/progress";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +12,16 @@ export async function GET(
   const comicId = parseInt(id, 10);
 
   if (isNaN(comicId)) {
-    return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Identifiant invalide" },
+      { status: 400 },
+    );
   }
 
-  const progress = await getProgress(comicId);
+  const profileId = await getActiveProfileId();
+  const progress = await getProgress(comicId, profileId);
   return NextResponse.json({ progress });
 }
-
 
 export async function PUT(
   request: NextRequest,
@@ -27,7 +31,10 @@ export async function PUT(
   const comicId = parseInt(id, 10);
 
   if (isNaN(comicId)) {
-    return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Identifiant invalide" },
+      { status: 400 },
+    );
   }
 
   const body = await request.json();
@@ -40,7 +47,8 @@ export async function PUT(
     );
   }
 
-  await saveProgress(comicId, currentPage, totalPages);
+  const profileId = await getActiveProfileId();
+  await saveProgress(comicId, currentPage, totalPages, profileId);
   return NextResponse.json({ status: "ok" });
 }
 
@@ -52,7 +60,10 @@ export async function PATCH(
   const comicId = parseInt(id, 10);
 
   if (isNaN(comicId)) {
-    return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Identifiant invalide" },
+      { status: 400 },
+    );
   }
 
   const body = await request.json();
@@ -65,6 +76,7 @@ export async function PATCH(
     );
   }
 
-  await markAs(comicId, status);
+  const profileId = await getActiveProfileId();
+  await markAs(comicId, status, profileId);
   return NextResponse.json({ status: "ok" });
 }

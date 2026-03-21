@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,12 @@ export async function GET(
   if (isNaN(comicId)) {
     return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
   }
+
+  const profileId = await getActiveProfileId();
+  const profileCondition =
+    profileId != null
+      ? eq(readingProgress.profileId, profileId)
+      : isNull(readingProgress.profileId);
 
   const rows = await db
     .select({
@@ -39,7 +46,10 @@ export async function GET(
     })
     .from(comics)
     .leftJoin(series, eq(series.id, comics.seriesId))
-    .leftJoin(readingProgress, eq(readingProgress.comicId, comics.id))
+    .leftJoin(
+      readingProgress,
+      and(eq(readingProgress.comicId, comics.id), profileCondition),
+    )
     .where(eq(comics.id, comicId))
     .limit(1);
 

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { count, eq, desc } from "drizzle-orm";
+import { count, eq, desc, and, isNull } from "drizzle-orm";
 import { ContinueReading } from "@/components/library/continue-reading";
 import { RecentAdditions } from "@/components/library/recent-additions";
 import { LibraryStats } from "@/components/library/library-stats";
@@ -9,16 +9,24 @@ import { PendingRequests } from "@/components/library/pending-requests";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BookOpen, ArrowRight } from "lucide-react";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const profileId = await getActiveProfileId();
+
+  const profileCondition =
+    profileId != null
+      ? eq(readingProgress.profileId, profileId)
+      : isNull(readingProgress.profileId);
+
   const [seriesCount] = await db.select({ total: count() }).from(series);
   const [comicsCount] = await db.select({ total: count() }).from(comics);
   const [readCount] = await db
     .select({ total: count() })
     .from(readingProgress)
-    .where(eq(readingProgress.status, "read"));
+    .where(and(eq(readingProgress.status, "read"), profileCondition));
 
   const totalSeries = seriesCount.total;
   const totalComics = comicsCount.total;
@@ -46,7 +54,7 @@ export default async function HomePage() {
     .from(readingProgress)
     .innerJoin(comics, eq(comics.id, readingProgress.comicId))
     .leftJoin(series, eq(series.id, comics.seriesId))
-    .where(eq(readingProgress.status, "reading"))
+    .where(and(eq(readingProgress.status, "reading"), profileCondition))
     .orderBy(desc(readingProgress.updatedAt))
     .limit(10);
 

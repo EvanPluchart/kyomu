@@ -1,11 +1,19 @@
 import { db } from "@/lib/db";
 import { series, comics, readingProgress } from "@/lib/db/schema";
-import { asc, eq, desc } from "drizzle-orm";
+import { asc, eq, desc, and, isNull } from "drizzle-orm";
 import { KioskView } from "@/components/kiosk/kiosk-view";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
 export default async function KioskPage() {
+  const profileId = await getActiveProfileId();
+
+  const profileCondition =
+    profileId != null
+      ? eq(readingProgress.profileId, profileId)
+      : isNull(readingProgress.profileId);
+
   const allSeries = await db
     .select()
     .from(series)
@@ -24,7 +32,7 @@ export default async function KioskPage() {
     .from(readingProgress)
     .innerJoin(comics, eq(comics.id, readingProgress.comicId))
     .leftJoin(series, eq(series.id, comics.seriesId))
-    .where(eq(readingProgress.status, "reading"))
+    .where(and(eq(readingProgress.status, "reading"), profileCondition))
     .orderBy(desc(readingProgress.updatedAt))
     .limit(5);
 

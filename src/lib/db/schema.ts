@@ -1,5 +1,20 @@
-import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, real, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+
+export const profiles = sqliteTable("profiles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  color: text("color").notNull().default("#e8a030"),
+  pin: text("pin"),
+  theme: text("theme").notNull().default("dark"),
+  accent: text("accent").notNull().default("Ambre"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(current_timestamp)`),
+});
+
+export type Profile = typeof profiles.$inferSelect;
+export type NewProfile = typeof profiles.$inferInsert;
 
 export const series = sqliteTable("series", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -53,8 +68,8 @@ export const readingProgress = sqliteTable(
     id: integer("id").primaryKey({ autoIncrement: true }),
     comicId: integer("comic_id")
       .notNull()
-      .unique()
       .references(() => comics.id),
+    profileId: integer("profile_id").references(() => profiles.id),
     currentPage: integer("current_page").notNull().default(0),
     totalPages: integer("total_pages").notNull().default(0),
     status: text("status", { enum: ["unread", "reading", "read"] })
@@ -67,7 +82,8 @@ export const readingProgress = sqliteTable(
       .default(sql`(current_timestamp)`),
   },
   (table) => [
-    index("idx_reading_progress_comic_id").on(table.comicId),
+    index("idx_progress_comic_profile").on(table.comicId, table.profileId),
+    unique("uq_progress_comic_profile").on(table.comicId, table.profileId),
   ],
 );
 
