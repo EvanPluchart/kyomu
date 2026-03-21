@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Loader2, ChevronDown, ChevronRight, Filter, X } from "lucide-react";
+import { Search, Loader2, ChevronDown, ChevronRight, Filter, X, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { HorizontalScroll } from "@/components/library/horizontal-scroll";
 import { cn } from "@/lib/utils";
 
@@ -315,6 +316,34 @@ function Sidebar({
   );
 }
 
+// ── Discover Random Button ──
+
+function DiscoverRandomButton() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  async function handleClick() {
+    setLoading(true);
+    const res = await fetch("/api/discover/random");
+    if (res.ok) {
+      const data = await res.json();
+      router.push(`/discover/${data.volume.id}`);
+    }
+    setLoading(false);
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="flex cursor-pointer items-center gap-2 rounded-xl bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 transition-all disabled:opacity-50"
+    >
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+      Surprise !
+    </button>
+  );
+}
+
 // ── Main page ──
 
 export default function DiscoverPage() {
@@ -382,9 +411,12 @@ export default function DiscoverPage() {
     <div className="animate-fade-in">
       {/* Header + Search */}
       <div className="space-y-6 mb-8">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
-          Découvrir
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+            Découvrir
+          </h1>
+          <DiscoverRandomButton />
+        </div>
 
         <div className="flex gap-3">
           {/* Mobile filter button */}

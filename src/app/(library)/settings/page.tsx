@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor } from "lucide-react";
+import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor, BarChart3 } from "lucide-react";
 import { AccentPicker } from "@/components/layout/accent-picker";
 import { Toast } from "@/components/ui/toast";
 
@@ -103,6 +103,7 @@ export default function SettingsPage() {
             { href: "/tags", label: "Tags", icon: Tag },
             { href: "/reading", label: "En cours", icon: BookOpen },
             { href: "/profiles", label: "Profils", icon: Users },
+            { href: "/stats", label: "Statistiques", icon: BarChart3 },
             { href: "/kiosk", label: "Kiosque", icon: Monitor },
           ].map((link) => (
             <Link key={link.href} href={link.href} className="flex items-center gap-3 rounded-xl bg-card p-3 hover:bg-muted/50 transition-colors cursor-pointer">

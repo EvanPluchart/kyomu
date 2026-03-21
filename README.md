@@ -1,25 +1,50 @@
+<div align="center">
+
 # 虚 Kyomu
 
-> Lecteur de comics self-hosted léger et moderne — Alternative à Komga
+**A lightweight, modern, self-hosted comic reader**
 
-Kyomu (虚無, "le vide") est un lecteur de comics, manga et webtoons self-hosted conçu pour être léger, rapide et visuellement soigné.
+*Alternative to Komga — built with Next.js, designed for speed*
 
-## Fonctionnalités
+![Home](docs/screenshots/home.png)
 
-- 📚 **Bibliothèque** — Scan automatique de votre collection (CBZ, CBR, PDF, dossiers d'images)
-- 📖 **Lecteur** — Page par page, défilement vertical (webtoon), double page
-- 🎯 **Gestes tactiles** — Swipe, pinch-to-zoom, double-tap (PWA installable)
-- 🔍 **Découverte** — Catalogue ComicVine avec recherche et catégories (style Seerr)
-- ⬇️ **Téléchargement** — Intégration Kapowarr + Mylar3 pour le téléchargement automatique
-- 📊 **Progression** — Suivi de lecture, reprise automatique, navigation inter-volumes
-- 🏷️ **Tags** — Organisez vos séries avec des tags personnalisés
-- 🌓 **Thèmes** — Mode clair/sombre + couleur d'accent personnalisable
-- 📡 **OPDS** — Compatible avec les clients externes (Panels, Chunky Reader)
-- 🔌 **API REST** — Complète pour l'intégration avec d'autres services
+</div>
 
-## Installation
+---
 
-### Docker Compose (recommandé)
+## Features
+
+| | Feature | Description |
+|---|---------|-------------|
+| 📚 | **Library** | Auto-scan your collection (CBZ, CBR, PDF, image folders) |
+| 📖 | **Reader** | Page-by-page, vertical scroll (webtoon), double-page spread |
+| 🎯 | **Touch-first** | Swipe, pinch-to-zoom, double-tap — installable as PWA |
+| 🔍 | **Discover** | Browse ComicVine catalog with categories (Marvel, DC, Manga, Webtoon) |
+| ⬇️ | **Download** | Request comics via Kapowarr and/or Mylar3 integration |
+| 📊 | **Progress** | Reading progress tracking, resume, inter-volume navigation |
+| 👤 | **Profiles** | Multi-user profiles with optional PIN protection |
+| 🏷️ | **Tags** | Organize series with custom tags |
+| 🌓 | **Themes** | Light/dark mode + customizable accent color |
+| 📡 | **OPDS** | Compatible with external readers (Panels, Chunky) |
+| 🔌 | **REST API** | Full API for integration with other services |
+
+<details>
+<summary>📸 More screenshots</summary>
+
+### Series Library
+![Series](docs/screenshots/series.png)
+
+### Discover (Seerr-like)
+![Discover](docs/screenshots/discover.png)
+
+### Comic Reader
+![Reader](docs/screenshots/reader.png)
+
+</details>
+
+## Quick Start
+
+### Docker Compose
 
 ```yaml
 services:
@@ -32,41 +57,42 @@ services:
       - /path/to/comics:/comics:ro
     environment:
       - COMICS_PATH=/comics
-      - DATABASE_PATH=/app/data/kyomu.db
     restart: unless-stopped
 
 volumes:
   kyomu-data:
 ```
 
-### Variables d'environnement
+See [`docker-compose.example.yml`](docker-compose.example.yml) for all options.
 
-| Variable | Description | Défaut |
-|----------|-------------|--------|
-| `COMICS_PATH` | Chemin des comics | `/mnt/media/comics` |
-| `DATABASE_PATH` | Chemin de la base SQLite | `./data/kyomu.db` |
-| `SCAN_INTERVAL_MINUTES` | Intervalle de scan auto | `60` |
-| `COMICVINE_API_KEY` | Clé API ComicVine (optionnel) | — |
-| `KAPOWARR_API_KEY` | Clé API Kapowarr (optionnel) | — |
-| `KAPOWARR_INTERNAL_URL` | URL interne Kapowarr | `http://localhost:5656` |
-| `MYLAR3_API_KEY` | Clé API Mylar3 (optionnel) | — |
-| `MYLAR3_INTERNAL_URL` | URL interne Mylar3 | `http://localhost:8090` |
+### Environment Variables
 
-### Formats supportés
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `COMICS_PATH` | Comics directory path | `/mnt/media/comics` |
+| `DATABASE_PATH` | SQLite database path | `./data/kyomu.db` |
+| `SCAN_INTERVAL_MINUTES` | Auto-scan interval | `60` |
+| `COMICVINE_API_KEY` | ComicVine API key (optional) | — |
+| `KAPOWARR_API_KEY` | Kapowarr API key (optional) | — |
+| `KAPOWARR_INTERNAL_URL` | Kapowarr internal URL | `http://localhost:5656` |
+| `MYLAR3_API_KEY` | Mylar3 API key (optional) | — |
+| `MYLAR3_INTERNAL_URL` | Mylar3 internal URL | `http://localhost:8090` |
 
-- **CBZ** (Comic Book Zip) — streaming natif
-- **CBR** (Comic Book RAR) — via `unrar-free`
+### Supported Formats
+
+- **CBZ** — native streaming (yauzl)
+- **CBR** — via `unrar-free`
 - **PDF** — via `poppler-utils` (pdftoppm)
-- **Dossiers d'images** (jpg, png, webp)
+- **Image folders** — jpg, png, webp
 
-## Stack technique
+## Tech Stack
 
 - [Next.js 16](https://nextjs.org/) — App Router, Server Components
 - [Tailwind CSS 4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
-- [Drizzle ORM](https://orm.drizzle.team/) + SQLite (better-sqlite3)
-- [Vitest](https://vitest.dev/) — Tests unitaires
+- [Drizzle ORM](https://orm.drizzle.team/) + SQLite
+- [Vitest](https://vitest.dev/) — Unit tests
 
-## Développement
+## Development
 
 ```bash
 pnpm install
@@ -74,6 +100,6 @@ pnpm db:migrate
 pnpm dev
 ```
 
-## Licence
+## License
 
-MIT
+[MIT](LICENSE) — Evan Pluchart

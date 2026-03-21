@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BookOpen, ArrowRight } from "lucide-react";
 import { getActiveProfileId } from "@/lib/profile";
+import { RandomReadButton } from "@/components/library/random-read-button";
 
 export const dynamic = "force-dynamic";
 
@@ -129,12 +130,15 @@ export default async function HomePage() {
               Bibliothèque
             </h1>
           </div>
-          <Link
-            href="/series"
-            className="text-sm text-muted-foreground hover:text-primary transition-colors"
-          >
-            Toutes les séries →
-          </Link>
+          <div className="flex items-center gap-3">
+            <RandomReadButton />
+            <Link
+              href="/series"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              Toutes les séries →
+            </Link>
+          </div>
         </div>
 
         <LibraryStats
