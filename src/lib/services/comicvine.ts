@@ -19,6 +19,43 @@ export interface ComicVineVolume {
 
 const BASE_URL = "https://comicvine.gamespot.com/api";
 
+// Publishers to prioritize (English + French)
+const PREFERRED_PUBLISHERS = new Set([
+  "DC Comics", "Marvel", "Image", "Image Comics", "Dark Horse Comics",
+  "IDW Publishing", "Boom! Studios", "Dynamite Entertainment",
+  "Valiant", "Aftershock Comics", "Oni Press", "Vertigo",
+  "Yen Press", "Viz Media", "Kodansha Comics", "Seven Seas Entertainment",
+  "Titan Comics", "Ablaze", "Tokyopop",
+  // French publishers
+  "Glénat", "Kana", "Pika", "Ki-oon", "Kurokawa", "Delcourt",
+  "Dargaud", "Dupuis", "Le Lombard", "Casterman", "Soleil",
+  "Ankama", "Bamboo", "Panini Comics", "Urban Comics",
+]);
+
+// Publishers to exclude (non-English/French)
+const EXCLUDED_PUBLISHERS = new Set([
+  "Editorial Ivrea", "Panini Brasil", "Grupo Editorial Vid",
+  "ECC Ediciones", "Editorial Televisa", "Planeta DeAgostini",
+  "JBC", "Norma Editorial", "Kamite",
+]);
+
+function filterByLanguage(results: ComicVineSearchResult[]): ComicVineSearchResult[] {
+  const preferred: ComicVineSearchResult[] = [];
+  const other: ComicVineSearchResult[] = [];
+
+  for (const r of results) {
+    const pubName = r.publisher?.name ?? "";
+    if (EXCLUDED_PUBLISHERS.has(pubName)) continue;
+    if (PREFERRED_PUBLISHERS.has(pubName)) {
+      preferred.push(r);
+    } else {
+      other.push(r);
+    }
+  }
+
+  return [...preferred, ...other];
+}
+
 export function isComicVineConfigured(): boolean {
   return config.comicVineApiKey.length > 0;
 }
@@ -28,7 +65,7 @@ export async function searchVolumes(
 ): Promise<ComicVineSearchResult[]> {
   if (!isComicVineConfigured()) return [];
 
-  const url = `${BASE_URL}/search/?api_key=${config.comicVineApiKey}&format=json&resources=volume&query=${encodeURIComponent(query)}&limit=10`;
+  const url = `${BASE_URL}/search/?api_key=${config.comicVineApiKey}&format=json&resources=volume&query=${encodeURIComponent(query)}&limit=20`;
 
   const response = await fetch(url, {
     headers: { "User-Agent": "Kyomu Comic Reader" },
@@ -37,7 +74,7 @@ export async function searchVolumes(
   if (!response.ok) return [];
 
   const data = await response.json();
-  return data.results ?? [];
+  return filterByLanguage(data.results ?? []).slice(0, 10);
 }
 
 export async function getVolumeDetails(
@@ -72,40 +109,40 @@ export async function getVolumeDetails(
 
 export async function getRecentVolumes(): Promise<ComicVineSearchResult[]> {
   if (!isComicVineConfigured()) return [];
-  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&sort=date_added:desc&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
+  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&sort=date_added:desc&limit=40&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
   const response = await fetch(url, {
     headers: { "User-Agent": "Kyomu Comic Reader" },
     next: { revalidate: 3600 },
   });
   if (!response.ok) return [];
   const data = await response.json();
-  return data.results ?? [];
+  return filterByLanguage(data.results ?? []).slice(0, 20);
 }
 
 export async function getPopularVolumes(): Promise<ComicVineSearchResult[]> {
   if (!isComicVineConfigured()) return [];
-  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&sort=count_of_issues:desc&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
+  const url = `${BASE_URL}/volumes/?api_key=${config.comicVineApiKey}&format=json&sort=count_of_issues:desc&limit=40&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
   const response = await fetch(url, {
     headers: { "User-Agent": "Kyomu Comic Reader" },
     next: { revalidate: 3600 },
   });
   if (!response.ok) return [];
   const data = await response.json();
-  return data.results ?? [];
+  return filterByLanguage(data.results ?? []).slice(0, 20);
 }
 
 export async function searchVolumesLarge(
   query: string,
 ): Promise<ComicVineSearchResult[]> {
   if (!isComicVineConfigured()) return [];
-  const url = `${BASE_URL}/search/?api_key=${config.comicVineApiKey}&format=json&resources=volume&query=${encodeURIComponent(query)}&limit=20&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
+  const url = `${BASE_URL}/search/?api_key=${config.comicVineApiKey}&format=json&resources=volume&query=${encodeURIComponent(query)}&limit=30&field_list=id,name,description,publisher,start_year,image,count_of_issues`;
   const response = await fetch(url, {
     headers: { "User-Agent": "Kyomu Comic Reader" },
     next: { revalidate: 3600 },
   });
   if (!response.ok) return [];
   const data = await response.json();
-  return data.results ?? [];
+  return filterByLanguage(data.results ?? []).slice(0, 20);
 }
 
 export async function getFullVolumeDetails(volumeId: number): Promise<{
