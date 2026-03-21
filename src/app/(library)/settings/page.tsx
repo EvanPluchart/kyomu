@@ -247,7 +247,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Couleur d'accent</span>
+            <span className="text-muted-foreground">Couleur d&apos;accent</span>
             <AccentPicker />
           </div>
 

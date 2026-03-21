@@ -37,20 +37,24 @@ export function CommandSearch() {
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 100);
-    } else {
-      setQuery("");
-      setLocalResults([]);
     }
   }, [open]);
 
+  function handleOpen(value: boolean) {
+    setOpen(value);
+    if (!value) {
+      setQuery("");
+      setLocalResults([]);
+    }
+  }
+
   // Search local library
   useEffect(() => {
-    if (!query.trim() || query.length < 2) {
-      setLocalResults([]);
-      return;
-    }
-
     const timer = setTimeout(async () => {
+      if (!query.trim() || query.length < 2) {
+        setLocalResults([]);
+        return;
+      }
       setLoading(true);
       try {
         const res = await fetch(`/api/library/series?q=${encodeURIComponent(query)}&limit=5`);
@@ -87,7 +91,7 @@ export function CommandSearch() {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm" onClick={() => handleOpen(false)} />
 
       {/* Dialog */}
       <div className="fixed left-1/2 top-[20%] z-[101] w-full max-w-lg -translate-x-1/2">

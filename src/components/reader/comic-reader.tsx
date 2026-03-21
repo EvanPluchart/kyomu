@@ -39,7 +39,15 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
   });
   const [nightMode, setNightMode] = useState(false);
   const [brightness, setBrightness] = useState(1);
-  const [bookmark, setBookmark] = useState<number | null>(null);
+  const [bookmark, setBookmark] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const bm = JSON.parse(localStorage.getItem("kyomu-bookmarks") ?? "{}");
+      return bm[String(comicId)] ?? null;
+    } catch {
+      return null;
+    }
+  });
 
   // Fetch page count on mount
   useEffect(() => {
@@ -88,16 +96,6 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
       }
     }
   }, [currentPage, totalPages, comicId]);
-
-  // Load bookmark on mount
-  useEffect(() => {
-    try {
-      const bm = JSON.parse(localStorage.getItem("kyomu-bookmarks") ?? "{}");
-      if (bm[String(comicId)] !== undefined) {
-        setBookmark(bm[String(comicId)]);
-      }
-    } catch {}
-  }, [comicId]);
 
   function handleBookmarkToggle() {
     const bm = JSON.parse(localStorage.getItem("kyomu-bookmarks") ?? "{}");

@@ -13,15 +13,10 @@ const ACCENTS = [
 ] as const;
 
 export function AccentPicker() {
-  const [selected, setSelected] = useState("Ambre");
-
-  useEffect(() => {
-    const saved = localStorage.getItem("kyomu-accent");
-    if (saved) {
-      setSelected(saved);
-      applyAccent(saved);
-    }
-  }, []);
+  const [selected, setSelected] = useState(() => {
+    if (typeof window === "undefined") return "Ambre";
+    return localStorage.getItem("kyomu-accent") ?? "Ambre";
+  });
 
   function applyAccent(name: string) {
     const accent = ACCENTS.find((a) => a.name === name);
@@ -30,6 +25,10 @@ export function AccentPicker() {
     document.documentElement.style.setProperty("--accent", accent.hsl);
     document.documentElement.style.setProperty("--ring", accent.hsl);
   }
+
+  useEffect(() => {
+    applyAccent(selected);
+  }, []);
 
   function handleSelect(name: string) {
     setSelected(name);

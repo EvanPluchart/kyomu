@@ -8,6 +8,7 @@ interface SeriesGridProps {
 }
 
 export function SeriesGrid({ series }: SeriesGridProps) {
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
 
   return (

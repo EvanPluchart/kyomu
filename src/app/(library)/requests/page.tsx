@@ -17,6 +17,16 @@ export default function RequestsPage() {
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/requests")
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setRequests(d.requests ?? []); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
   function loadRequests() {
     setLoading(true);
     fetch("/api/requests")
@@ -25,10 +35,6 @@ export default function RequestsPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }
-
-  useEffect(() => {
-    loadRequests();
-  }, []);
 
   const searching = requests.filter((r) => r.status === "searching");
   const downloading = requests.filter((r) => r.status === "downloading");

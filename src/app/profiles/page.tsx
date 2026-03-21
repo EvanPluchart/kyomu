@@ -34,16 +34,16 @@ export default function ProfilesPage() {
   const [pinInput, setPinInput] = useState("");
   const [askingPin, setAskingPin] = useState<Profile | null>(null);
 
-  useEffect(() => {
-    loadProfiles();
-  }, []);
-
   function loadProfiles() {
     fetch("/api/profiles")
       .then((r) => r.json())
       .then((d) => setProfiles(d.profiles ?? []))
       .catch(() => {});
   }
+
+  useEffect(() => {
+    loadProfiles();
+  }, []);
 
   async function handleSelect(profile: Profile) {
     if (profile.pin) {
