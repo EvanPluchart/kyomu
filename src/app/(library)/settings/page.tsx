@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, FolderOpen, Clock, Info, ExternalLink, BookOpen, Library, CheckCircle, Download, History, Tag, Users, Monitor, BarChart3, LogOut } from "lucide-react";
 import { AccentPicker } from "@/components/layout/accent-picker";
+import { ChangePasswordForm } from "@/components/layout/change-password-form";
 import { Toast } from "@/components/ui/toast";
 import { formatRelativeDate } from "@/lib/utils";
 
@@ -288,8 +289,17 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Section Déconnexion */}
+      {/* Section Compte */}
       <section className="space-y-4">
+        <h2
+          className="text-lg font-semibold tracking-tight flex items-center gap-2"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Compte
+        </h2>
+
+        <ChangePasswordForm />
+
         <Button
           variant="outline"
           onClick={async () => {
