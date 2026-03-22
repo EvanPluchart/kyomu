@@ -176,7 +176,19 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
     <div className={`relative w-screen select-none ${readingMode === "vertical" ? "overflow-y-auto" : "overflow-hidden"}`} style={{ height: "100dvh" }}>
       <div className="h-full w-full" style={{ filter: `brightness(${nightMode ? 0.85 * brightness : brightness}) ${nightMode ? "sepia(0.3)" : ""}`.trim() }}>
         {readingMode === "vertical" ? (
-          <div className="overflow-y-auto" style={{ height: "100dvh" }}>
+          <div
+            className="overflow-y-auto"
+            style={{ height: "100dvh" }}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              const width = rect.width;
+              const third = width / 3;
+              if (x > third && x < third * 2) {
+                setShowControls((prev) => !prev);
+              }
+            }}
+          >
             <VerticalReader
               comicId={comicId}
               totalPages={totalPages}
