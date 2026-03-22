@@ -4,7 +4,7 @@ export default function ReaderLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="bg-black text-white" style={{ minHeight: "100dvh" }}>
       {children}
     </div>
   );

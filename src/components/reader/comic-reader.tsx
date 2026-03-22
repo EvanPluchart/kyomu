@@ -163,7 +163,7 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
 
   if (totalPages === 0) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex items-center justify-center" style={{ height: "100dvh" }}>
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-primary" />
           <p className="text-sm text-muted-foreground">Chargement...</p>
@@ -173,10 +173,10 @@ export function ComicReader({ comicId, title, seriesTitle, seriesId }: ComicRead
   }
 
   return (
-    <div className={`relative h-screen w-screen select-none ${readingMode === "vertical" ? "overflow-y-auto" : "overflow-hidden"}`}>
+    <div className={`relative w-screen select-none ${readingMode === "vertical" ? "overflow-y-auto" : "overflow-hidden"}`} style={{ height: "100dvh" }}>
       <div className="h-full w-full" style={{ filter: `brightness(${nightMode ? 0.85 * brightness : brightness}) ${nightMode ? "sepia(0.3)" : ""}`.trim() }}>
         {readingMode === "vertical" ? (
-          <div className="h-screen overflow-y-auto">
+          <div className="overflow-y-auto" style={{ height: "100dvh" }}>
             <VerticalReader
               comicId={comicId}
               totalPages={totalPages}
