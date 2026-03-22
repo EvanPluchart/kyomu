@@ -41,7 +41,7 @@ export default function LoginPage() {
     });
 
     if (res.ok) {
-      window.location.href = "/";
+      window.location.href = "/profiles";
       return;
     } else {
       const data = await res.json();
