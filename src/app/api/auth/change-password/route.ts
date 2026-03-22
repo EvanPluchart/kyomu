@@ -13,7 +13,7 @@ import {
 } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
-  const sessionToken = await getSessionFromCookie();
+  const sessionToken = request.cookies.get("kyomu-session")?.value;
   if (!sessionToken || !(await validateSession(sessionToken))) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
