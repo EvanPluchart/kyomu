@@ -13,7 +13,7 @@ export function VerticalReader({
   totalPages,
   onPageChange,
 }: VerticalReaderProps) {
-  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0, 1, 2]));
+  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0, 1, 2, 3, 4]));
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -25,10 +25,10 @@ export function VerticalReader({
           if (entry.isIntersecting) {
             const index = Number(entry.target.getAttribute("data-page-index"));
             if (!isNaN(index)) {
-              // Load this page and 2 pages ahead
+              // Load this page and 5 pages ahead, 2 behind
               setLoadedPages((prev) => {
                 const next = new Set(prev);
-                for (let i = Math.max(0, index - 1); i <= Math.min(totalPages - 1, index + 2); i++) {
+                for (let i = Math.max(0, index - 2); i <= Math.min(totalPages - 1, index + 5); i++) {
                   next.add(i);
                 }
                 return next;
@@ -42,7 +42,7 @@ export function VerticalReader({
           }
         });
       },
-      { rootMargin: "200px 0px", threshold: [0, 0.5, 1] },
+      { rootMargin: "500px 0px", threshold: [0, 0.5, 1] },
     );
 
     pageRefs.current.forEach((ref) => {
