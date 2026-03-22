@@ -99,18 +99,24 @@ export function useComicGestures({
         // Single tap — wait to confirm it's not a double tap
         setTimeout(() => {
           if (Date.now() - lastTapRef.current >= 280) {
-            // Single tap confirmed
             const el = containerRef.current;
             if (!el) return;
             const rect = el.getBoundingClientRect();
-            const x = (event as MouseEvent).clientX - rect.left;
+
+            // Support both mouse and touch events
+            const clientX =
+              "clientX" in event
+                ? (event as MouseEvent).clientX
+                : (event as unknown as TouchEvent).changedTouches?.[0]?.clientX ?? rect.width / 2;
+
+            const x = clientX - rect.left;
             const width = rect.width;
             const third = width / 3;
 
-            if (stateRef.current.scale > 1) return; // Don't navigate when zoomed
+            if (stateRef.current.scale > 1) return;
 
-            if (x < third) onSwipeRight(); // Previous (tap left)
-            else if (x > third * 2) onSwipeLeft(); // Next (tap right)
+            if (x < third) onSwipeRight();
+            else if (x > third * 2) onSwipeLeft();
             else onTapCenter();
           }
         }, 300);
