@@ -52,12 +52,33 @@ export function extractNumberFromFilename(filename: string): number | null {
     return parseInt(kapowarrMatch[1], 10);
   }
 
-  // Fallback : dernier nombre dans le nom de fichier
+  // Pattern "XX (of YY)" : "Batman - White Knight 02 (of 08)"
+  const ofMatch = nameWithoutExt.match(/(\d+)\s*\(of\s+\d+\)/i);
+  if (ofMatch) {
+    return parseInt(ofMatch[1], 10);
+  }
+
+  // Pattern "#XX" : "Spider-Man #42"
+  const hashMatch = nameWithoutExt.match(/#(\d+)/);
+  if (hashMatch) {
+    return parseInt(hashMatch[1], 10);
+  }
+
+  // Fallback : premier nombre qui n'est pas une année (4 chiffres 19xx/20xx)
   const matches = nameWithoutExt.match(/\d+/g);
   if (!matches || matches.length === 0) return null;
-  const lastMatch = matches[matches.length - 1];
-  const num = parseInt(lastMatch, 10);
-  return Number.isNaN(num) ? null : num;
+
+  for (const m of matches) {
+    const num = parseInt(m, 10);
+    if (Number.isNaN(num)) continue;
+    // Ignorer les années (1900-2099)
+    if (num >= 1900 && num <= 2099 && m.length === 4) continue;
+    return num;
+  }
+
+  // Si tout est des années, prendre le dernier nombre
+  const lastNum = parseInt(matches[matches.length - 1], 10);
+  return Number.isNaN(lastNum) ? null : lastNum;
 }
 
 export interface KapowarrInfo {
